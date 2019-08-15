@@ -9,6 +9,9 @@
 * @copyright Copyright (c) 2018, heidelpay GmbH
 * @author heidelpay Group
 */
+
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+
 require_once __DIR__ . '/Components/CSRFWhitelistAware.php';
 
 class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Components_Plugin_Bootstrap{
@@ -1971,6 +1974,9 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 
 	/**
 	 * Event for custom code
+     *
+     * @throws ServiceCircularReferenceException
+     * @throws RuntimeException
 	 */
 	public function onPostDispatch(Enlight_Event_EventArgs $args){
         $request = $args->getSubject()->Request();
@@ -2536,7 +2542,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                 $view->assign('sanGenderVal',['MR', 'MRS']);
                 $view->assign('sanGenderOut',['Herr', 'Frau']);
                 $view->assign('genderShop_HpSan',$user['additional']['user']['salutation'] == 'mrs'? 'MRS' : 'MR');
-                if(Shopware::VERSION == '5.1.6'){
+                if($this->getSwVersion() === '5.1.6'){
                     $user = self::formatUserInfos($user);
                     $view->assign('accountHolder_HpSan',$user['billingaddress']['firstname'].' '.$user['billingaddress']['lastname']);
                 } else {
@@ -2609,8 +2615,17 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 	}
 
     /**
-	 * Event for custom code for nearly all Shopware-Events
-	 */
+     * Event for custom code for nearly all Shopware-Events
+     *
+     * @param Enlight_Event_EventArgs $args
+     *
+     * @throws Enlight_Event_Exception
+     * @throws Enlight_Exception
+     * @throws RuntimeException
+     * @throws ServiceCircularReferenceException
+     * @throws Zend_Db_Adapter_Exception
+     * @throws Zend_Db_Statement_Exception
+     */
     public function onPostDispatchTemplate(Enlight_Event_EventArgs $args){
         $request = $args->getSubject()->Request();
         $view = $args->getSubject()->View();
@@ -2729,7 +2744,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                 $view->assign('sanGenderVal',['MR', 'MRS']);
                 $view->assign('sanGenderOut',['Herr', 'Frau']);
                 $view->assign('genderShop_HpSan',$user['additional']['user']['salutation'] == 'mrs'? 'MRS' : 'MR');
-                if(Shopware::VERSION == '5.1.6'){
+                if ($this->getSwVersion() === '5.1.6') {
                     $user = self::formatUserInfos($user);
                     $view->assign('accountHolder_HpSan',$user['billingaddress']['firstname'].' '.$user['billingaddress']['lastname']);
                 } else {
@@ -3066,8 +3081,17 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 
     /**
      * Event for EasyCredit in Emotion-template
+     *
      * @param Enlight_Event_EventArgs $args
+     *
      * @return mixed
+     *
+     * @throws Enlight_Event_Exception
+     * @throws Enlight_Exception
+     * @throws RuntimeException
+     * @throws ServiceCircularReferenceException
+     * @throws Zend_Db_Adapter_Exception
+     * @throws Zend_Db_Statement_Exception
      */
     public function onPostDispatchFrontendCheckoutAccount(Enlight_Event_EventArgs $args)
     {
@@ -3202,7 +3226,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
             $view->sanGenderVal = ['MR', 'MRS'];
             $view->sanGenderOut = ['Herr', 'Frau'];
             $view->genderShop_HpSan = ($user['additional']['user']['salutation'] == 'mrs'? 'MRS' : 'MR');
-            if(Shopware::VERSION == '5.1.6'){
+            if($this->getSwVersion() === '5.1.6'){
                 $user = self::formatUserInfos($user);
                 $view->accountHolder_HpSan = $user['billingaddress']['firstname'].' '.$user['billingaddress']['lastname'];
             } else {
@@ -5478,5 +5502,22 @@ Mit freundlichen Gruessen
             $user['additional']['user']['lastname']     = isset($user['additional']['user']['lastname'])    && !empty($user['additional']['user']['lastname'])  ? $user['additional']['user']['lastname']   : $user['billingaddress']['lastname'];
         }
         return $user;
+    }
+
+    /**
+     * Returns the version string of this Shopware installation.
+     *
+     * @return mixed|string
+     * @throws ServiceCircularReferenceException
+     * @throws RuntimeException
+     */
+    private function getSwVersion()
+    {
+        if (defined('Shopware::VERSION')) {
+            $swVersion = Shopware::VERSION;
+        } else {
+            $swVersion = Shopware()->Container()->get('config')->get('version');
+        }
+        return $swVersion;
     }
 }
