@@ -28,7 +28,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 	 * @return string version number
 	 */
 	public function getVersion(){
-		return '19.06.19';
+		return '19.08.16';
 	}
 
 	/**
@@ -991,7 +991,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                 } catch (Exception $e) {
                     $this->logError($msg,$e);
                 }
-            case '19.06.19':
+            case '19.08.16':
                 try{
                     // integration of Flexipay
                     $this->createPayments();
@@ -1003,7 +1003,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                         )
                     );
 
-                    $msg .= '* update 19.06.19<br />';
+                    $msg .= '* update 19.08.16<br />';
                 } catch (Exception $e) {
                     $this->logError($msg,$e);
                 }
