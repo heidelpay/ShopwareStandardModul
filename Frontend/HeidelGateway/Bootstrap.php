@@ -991,7 +991,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                 } catch (Exception $e) {
                     $this->logError($msg,$e);
                 }
-            case '19.08.16':
+            case '19.06.18':
                 try{
                     // integration of Flexipay
                     $this->createPayments();
@@ -1003,10 +1003,12 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                         )
                     );
 
-                    $msg .= '* update 19.08.16<br />';
+                    $msg .= '* update 19.06.18<br />';
                 } catch (Exception $e) {
                     $this->logError($msg,$e);
                 }
+
+            case '19.08.16':
 
                 // overwrite $msg if update was successful
                 $msg = 'Update auf Version '.$this->getVersion().' erfolgreich.';
