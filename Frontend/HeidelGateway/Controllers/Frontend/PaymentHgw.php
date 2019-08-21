@@ -10,6 +10,7 @@
  * @author heidelpay Group
  */
 use Shopware\Components\CSRFWhitelistAware;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 
 class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Frontend_Payment implements CSRFWhitelistAware{
     var $dbtable = '';
@@ -1653,7 +1654,7 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
      */
     public function savePaymentAction(){
         try{
-            $swVersion = Shopware::VERSION;
+            $swVersion = $this->getSwVersion();
             $tplVersion = Shopware()->Shop()->getTemplate()->getVersion();
 
             $postparams = array();
@@ -3812,7 +3813,8 @@ $params['CRITERION.SHOPWARESESSION'] = Shopware()->Session()->get('sessionId');
             /* Try to fix problem with masterpass-quick-checkout */
 
             Shopware()->Session()->sRegisterFinished = false;
-            if(version_compare(Shopware::VERSION, '4.3.0', '>=') || Shopware::VERSION == '___VERSION___'){
+            $swVersion = $this->getSwVersion();
+            if(version_compare($swVersion, '4.3.0', '>=') || $swVersion === '___VERSION___'){
                 Shopware()->Session()->sRegister = $data;
             }else{
                 Shopware()->Session()->sRegister = new ArrayObject($data, ArrayObject::ARRAY_AS_PROPS);
@@ -4536,5 +4538,21 @@ $params['CRITERION.SHOPWARESESSION'] = Shopware()->Session()->get('sessionId');
             'success',
             'gateway'
         );
+    }
+
+    /**
+     * Returns the version string of this Shopware installation.
+     *
+     * @return mixed|string
+     * @throws ServiceCircularReferenceException
+     */
+    private function getSwVersion()
+    {
+        if (defined('Shopware::VERSION')) {
+            $swVersion = Shopware::VERSION;
+        } else {
+            $swVersion = $this->container->get('config')->get('version');
+        }
+        return $swVersion;
     }
 }
