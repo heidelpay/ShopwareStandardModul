@@ -4025,7 +4025,6 @@ $params['CRITERION.SHOPWARESESSION'] = Shopware()->Session()->get('sessionId');
     {
         Shopware()->Session()->HPdidRequest = 'TRUE';
         Shopware()->Session()->HPOrderId = $this->Request()->getParam('HpTransId');
-
         $this->redirect(
             array(
                 'controller' => 'checkout',

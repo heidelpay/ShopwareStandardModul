@@ -28,7 +28,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 	 * @return string version number
 	 */
 	public function getVersion(){
-		return '19.08.21';
+		return '19.08.23';
 	}
 
 	/**
@@ -106,7 +106,6 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 			throw new Enlight_Exception("This Plugin needs min shopware 4.3.7");
 		}
 
-        /* *************** Neuer Code ********************* */
         $swVersion = Shopware()->Config()->version;
 
         /* Major check Version */
@@ -120,19 +119,6 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                 throw new Enlight_Exception("This plugin requires the shopware plugin payment");
             }
         };
-        /* *************** Ende neuer Code ********************* */
-        /* Major check Version */
-//		if ($this->assertVersionGreaterThen('5.1.6')) {
-//			$swVersion = Shopware()->Config()->version;
-//
-//		} else {
-//			$swVersion = Shopware()->Config()->version;
-//			if(!$this->assertRequiredPluginsPresent(array('Payment'))){
-//				$msg .= "This plugin requires the plugin payment<br />";
-//				$this->uninstall();
-//				throw new Enlight_Exception("This plugin requires the shopware plugin payment");
-//			}
-//		}
 
 		if($this->assertRequiredPluginsPresent(array('HeidelActions'))){
 			throw new Enlight_Exception("Please delete Heidelpay Backend Plugin (HeidelActions) from your Server");
@@ -1009,6 +995,12 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                 }
 
             case '19.08.21':
+            case '19.08.23':
+                try{
+                   $msg .= '* update 19.08.23<br />';
+                } catch (Exception $e) {
+                    $this->logError($msg,$e);
+                }
 
                 // overwrite $msg if update was successful
                 $msg = 'Update auf Version '.$this->getVersion().' erfolgreich.';
@@ -1919,8 +1911,8 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                         $rawFooter = $this->getInvoiceContentInfo($containers, $orderData, 'SAN');
                         $containers['Hgw_SAN_Content_Info']['value'] = $rawFooter['value'];
                     } elseif (
-                        $document->_order->payment['name'] == 'hgw_ivpd' ||
-                        $document->_order->payment['name'] == 'hgw_ivb2b'
+                        $document->_order->payment['name'] == 'hgw_ivpd'
+//                        || $document->_order->payment['name'] == 'hgw_ivb2b'
                     ){
                         $rawFooter = $this->getInvoiceContentInfo($containers, $orderData, 'IVPD');
                         $containers['Hgw_IVPD_Content_Info']['value'] = $rawFooter['value'];
@@ -1956,8 +1948,8 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                         $containerData['Content_Info']['value'] = $document->_template->fetch('string:' . $containerData['Content_Info']['value']);
                         $view->assign('Containers', $containerData);
                     } elseif(
-                        ($document->_order->payment['name'] == 'hgw_ivpd') ||
-                        ($document->_order->payment['name'] == 'hgw_ivb2b')
+                        ($document->_order->payment['name'] == 'hgw_ivpd')
+//                        ||($document->_order->payment['name'] == 'hgw_ivb2b')
                     ) {
                         $containerData['Content_Info'] = $containerData['Hgw_IVPD_Content_Info'];
                         $containerData['Content_Info']['value'] = $document->_template->fetch('string:' . $containerData['Content_Info']['value']);
