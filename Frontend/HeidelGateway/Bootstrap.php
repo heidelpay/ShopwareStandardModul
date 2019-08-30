@@ -28,7 +28,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 	 * @return string version number
 	 */
 	public function getVersion(){
-		return '19.08.23';
+		return '19.08.30';
 	}
 
 	/**
@@ -994,10 +994,12 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                     $this->logError($msg,$e);
                 }
 
+            // Fix for no additional E-Mail for invoice B2B is sent after an order
+            // Feature setting article in stock in case of an order without session
             case '19.08.21':
-            case '19.08.23':
+            case '19.08.30':
                 try{
-                   $msg .= '* update 19.08.23<br />';
+                   $msg .= '* update 19.08.30<br />';
                 } catch (Exception $e) {
                     $this->logError($msg,$e);
                 }
