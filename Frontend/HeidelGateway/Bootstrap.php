@@ -28,7 +28,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 	 * @return string version number
 	 */
 	public function getVersion(){
-		return '19.08.30';
+		return '19.09.16';
 	}
 
 	/**
@@ -996,14 +996,13 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 
             // Fix for no additional E-Mail for invoice B2B is sent after an order
             // Feature setting article in stock in case of an order without session
-            case '19.08.21':
-            case '19.08.30':
+            // Fix for redirect after saving registered paymentdata in savePaymentAction
+            case '19.09.16':
                 try{
-                   $msg .= '* update 19.08.30<br />';
+                   $msg .= '* update 19.09.16<br />';
                 } catch (Exception $e) {
                     $this->logError($msg,$e);
                 }
-
                 // overwrite $msg if update was successful
                 $msg = 'Update auf Version '.$this->getVersion().' erfolgreich.';
         }

@@ -1701,14 +1701,30 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
             {   // bis SW 5.2.27 aktuell
                 $this->forward('savePayment', 'account', '', $postparams);
             } else {
-                // funktionstüchtig für SW 5.3
-                $this-> redirect(array(
-                        'controller' => 'checkout',
-                        'action' => 'confirm',
-                        'sTarget' => 'checkout',
-                        'sTargetAction' => 'confirm',
-                    )
-                );
+                switch ($this->Request()->getParam('sTarget')){
+                    case 'checkout':
+                        return $this-> redirect(array(
+                                'controller' => 'checkout',
+                                'action' => 'confirm',
+                            )
+                        );
+                        break;
+                    case 'account':
+                        return $this-> redirect(array(
+                                'controller' => 'account',
+                                'action' => 'index',
+                            )
+                        );
+                        break;
+                    default:
+                        return $this-> redirect(array(
+                                'controller' => 'index',
+                                'action' => 'index',
+                            )
+                        );
+                        break;
+                }
+                exit();
             }
 
         }catch(Exception $e){
