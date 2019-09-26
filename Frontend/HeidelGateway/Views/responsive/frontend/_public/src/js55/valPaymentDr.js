@@ -1,4 +1,3 @@
-// $(document).ready(function(){
 $(function() {
     if(swVersion.substring(0,3) >= '5.2'){
         var token = jQuery('input[name="__csrf_token"]').val();

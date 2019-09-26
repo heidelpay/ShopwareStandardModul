@@ -127,7 +127,6 @@ document.asyncReady(function () {
                     //     changeUrl(checkedOpt, orgLink);
                     // });
                 }
-            /* ************************************************ */
 
             // case to set or remove required attribute for payolution checkbos
             var paymentMethod = $('input:radio:checked').attr('class');
@@ -811,8 +810,6 @@ function valShippingPaymentForm() {
                         var errors = valInputDdIban(jQuery('.newreg_' + pm + ' #iban').val(), pm);
 
                         if(errors[0] === undefined){
-                            jQuery('form.payment').attr('action', formUrl['dd']);
-                        }if(errors[0] === undefined){
                             jQuery('form.payment').attr('action', formUrl['dd']);
                         }
                         break;

@@ -1247,7 +1247,6 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                         } else {
                             $dataToSave = NULL;
                         }
-
                         if (!empty($resp['ACCOUNT_IBAN'])) {
                             $saved = $this->saveRegData($resp, $resp['ACCOUNT_IBAN'], $resp['ACCOUNT_BIC'],$dataToSave);
                         } else {
@@ -1319,8 +1318,7 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                     default:
                         break;
                 }
-            }
-            else {
+            } else {
                 // Registration is NOK
                 $token = 'X-CSRF-Token';
                 Shopware()->Session()->$token = $resp['__csrf_token'];
@@ -1713,10 +1711,12 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                         return $this-> redirect(array(
                                 'controller' => 'account',
                                 'action' => 'index',
+                                'sTarget' => 'account'
                             )
                         );
                         break;
                     default:
+      
                         return $this-> redirect(array(
                                 'controller' => 'index',
                                 'action' => 'index',
@@ -3346,7 +3346,6 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
      */
     public function getFormUrl($pm, $bookingMode, $userId, $tempID, $uid=NULL, $basket=NULL, $ppd_crit=NULL, $fromBootstrap=false){
         try{
-
             $ppd_config = Shopware()->Plugins()->Frontend()->HeidelGateway()->ppd_config($bookingMode, $pm, $uid);
 //			$ppd_user = Shopware()->Plugins()->Frontend()->HeidelGateway()->ppd_user(NULL, $pm);
             if($fromBootstrap){
