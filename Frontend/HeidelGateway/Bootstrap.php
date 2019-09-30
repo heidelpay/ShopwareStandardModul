@@ -28,7 +28,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 	 * @return string version number
 	 */
 	public function getVersion(){
-		return '19.09.16';
+		return '19.09.26';
 	}
 
 	/**
@@ -1003,6 +1003,14 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                 } catch (Exception $e) {
                     $this->logError($msg,$e);
                 }
+            // Fix for switching to paymentmethod dd with reg
+            case '19.09.26':
+                try{
+                    $msg .= '* update 19.09.<br />';
+                } catch (Exception $e) {
+                    $this->logError($msg,$e);
+                }
+
                 // overwrite $msg if update was successful
                 $msg = 'Update auf Version '.$this->getVersion().' erfolgreich.';
         }
@@ -3931,7 +3939,6 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 	 */
 	public function doRequest($params = array(), $url = NULL){
 		try{
-
 		    if($url == NULL){ $url = self::$requestUrl; }
 			$client = new Zend_Http_Client($url, array(
 					'useragent' => 'Shopware/' . Shopware()->Config()->Version,

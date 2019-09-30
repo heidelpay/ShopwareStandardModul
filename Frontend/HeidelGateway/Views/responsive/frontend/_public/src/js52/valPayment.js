@@ -1,6 +1,7 @@
 $(document).ready(function(){
     // fix for missing csrf-token
     if(swVersion.substring(0,3) >= '5.2'){
+
         var token = jQuery('input[name="__csrf_token"]').val();
 
         if (jQuery('input[name="__csrf_token"]').length > 0 && jQuery('input[name="__csrf_token"]').val() != 0) {
@@ -10,29 +11,17 @@ $(document).ready(function(){
             if(window.location.pathname.indexOf('gateway') == '-1'){
                 // save original form action
                 var orgLink = jQuery('form.payment').attr('action');
-                if(window.location.pathname.toLowerCase().indexOf('shippingpayment') == '-1'){
-                    $(document).reuse();
-                    // change checked option
-                    jQuery('.register--payment').click(function(){
-                        // change form action
-                        var checkedOpt = jQuery('.register--payment input:radio:checked').attr('class');
-                        changeUrl(checkedOpt, orgLink);
-                    });
-
-                    // add validation for form
-                    jQuery('form.payment').attr('onSubmit', 'return valShippingPaymentForm();');
-
-                }else{
-                    var clicked = '';
+                // if(window.location.pathname.toLowerCase().indexOf('shippingpayment') == '-1'){
+                if(window.location.pathname.toLowerCase().indexOf('shippingpayment') > '0'){
+                   var clicked = '';
                     $(this).click(function(e){
                         clicked = e.target.className;
                     });
                     jQuery('.payment--method-list').click(function(){
-                        // change form action
                         var checkedOpt = jQuery('.payment--method input:radio:checked').attr('class');
-                        changeUrl(checkedOpt, orgLink);
-
                     });
+                    // add validation for form
+                    jQuery('form.payment').attr('onSubmit', 'return valShippingPaymentForm();');
 
                     // set original form action (before AJAX is sent)
                     $.ajaxSetup({
@@ -126,21 +115,33 @@ $(document).ready(function(){
                                     var checkedOpt = jQuery('.payment--method-list input:radio:checked').attr('class');
                                     $('input[class*="reues"]:checkbox, input[name*="ACCOUNT"], select[name*="ACCOUNT"], input[name*="CONTACT"]').click(function(){
                                         // change form action
-                                        changeUrl(checkedOpt, orgLink);
+                                        // changeUrl(checkedOpt, orgLink);
                                     });
                                     if(checkedOpt.indexOf('papg') != '-1'){
                                         // change form action
-                                        changeUrl(checkedOpt, orgLink);
+                                        // changeUrl(checkedOpt, orgLink);
                                     }
 
                                     if(checkedOpt.indexOf('san') != '-1'){
                                         // change form action
-                                        changeUrl(checkedOpt, orgLink);
+                                        // changeUrl(checkedOpt, orgLink);
                                     }
                                 });
                             });
                         }
                     });
+                }else{
+                    $(document).reuse();
+                    // change checked option
+                    jQuery('.register--payment').click(function(){
+                        // change form action
+                        var checkedOpt = jQuery('.register--payment input:radio:checked').attr('class');
+                        // changeUrl(checkedOpt, orgLink);
+                    });
+
+                    // add validation for form
+                    // jQuery('form.payment').attr('onSubmit', 'return valShippingPaymentForm();');
+                    jQuery('form.payment').attr('onSubmit', 'return valForm();');
                 }
             }
 
@@ -431,7 +432,7 @@ $(document).ready(function(){
                 jQuery('.register--payment').click(function(){
                     // change form action
                     var checkedOpt = jQuery('.register--payment input:radio:checked').attr('class');
-                    changeUrl(checkedOpt, orgLink);
+                    // changeUrl(checkedOpt, orgLink);
                 });
             }else{
                 var clicked = '';
@@ -442,7 +443,7 @@ $(document).ready(function(){
                 jQuery('.payment--method-list').click(function(){
                     // change form action
                     var checkedOpt = jQuery('.payment--method input:radio:checked').attr('class');
-                    changeUrl(checkedOpt, orgLink);
+                    // changeUrl(checkedOpt, orgLink);
 
                 });
 
@@ -489,21 +490,21 @@ $(document).ready(function(){
                                 var checkedOpt = jQuery('.payment--method-list input:radio:checked').attr('class');
                                 $('input[class*="reues"]:checkbox, input[name*="ACCOUNT"], select[name*="ACCOUNT"], input[name*="CONTACT"]').click(function(){
                                     // change form action
-                                    changeUrl(checkedOpt, orgLink);
+                                    // changeUrl(checkedOpt, orgLink);
                                 });
                                 if(checkedOpt.indexOf('papg') != '-1'){
                                     // change form action
-                                    changeUrl(checkedOpt, orgLink);
+                                    // changeUrl(checkedOpt, orgLink);
                                 }
 
                                 if(checkedOpt.indexOf('san') != '-1'){
                                     // change form action
-                                    changeUrl(checkedOpt, orgLink);
+                                    // changeUrl(checkedOpt, orgLink);
                                 }
 
                                 if (checkedOpt.indexOf('ivpd') != '-1') {
                                     // change form action
-                                    changeUrl(checkedOpt, orgLink);
+                                    // changeUrl(checkedOpt, orgLink);
                                 }
                             });
                         });
@@ -821,38 +822,38 @@ jQuery.fn.reuse = function(){
 }
 
 // CHANGE FORM URL
-function changeUrl(checkedOpt, orgLink){
-    if(checkedOpt != undefined){
-        var prefix = 'hgw_';
-        var checkedOptPos = checkedOpt.indexOf(prefix);
-
-        if(checkedOptPos >= 0){
-            var pm = checkedOpt.substr(checkedOptPos+prefix.length);
-
-            if(pm == 'pay'){ pm = 'va'; }
-            if(pm == 'dd'){
-                // $(document).ibanCheck();
-            }
-            if((jQuery('.reues_'+pm).length > 0) && !(jQuery('.reues_'+pm).is(':checked'))){
-                var reuse = true;
-            }else{
-                var reuse = false;
-            }
-            if(formUrl != null){
-                if((formUrl[pm] == undefined) || (formUrl[pm] == '') || (reuse) || (pm == 'cc') || (pm == 'dc')){
-                    jQuery('form.payment').attr('action', orgLink);
-                }else{
-                    jQuery('form.payment').attr('action', formUrl[pm]);
-                }
-            }
-        }else{
-            jQuery('form.payment').attr('action', orgLink);
-        }
-    }else{
-        jQuery('form.payment').attr('action', orgLink);
-    }
-
-}
+// function changeUrl(checkedOpt, orgLink){
+//     if(checkedOpt != undefined){
+//         var prefix = 'hgw_';
+//         var checkedOptPos = checkedOpt.indexOf(prefix);
+//
+//         if(checkedOptPos >= 0){
+//             var pm = checkedOpt.substr(checkedOptPos+prefix.length);
+//
+//             if(pm == 'pay'){ pm = 'va'; }
+//             if(pm == 'dd'){
+//                 // $(document).ibanCheck();
+//             }
+//             if((jQuery('.reues_'+pm).length > 0) && !(jQuery('.reues_'+pm).is(':checked'))){
+//                 var reuse = true;
+//             }else{
+//                 var reuse = false;
+//             }
+//             if(formUrl != null){
+//                 if((formUrl[pm] == undefined) || (formUrl[pm] == '') || (reuse) || (pm == 'cc') || (pm == 'dc')){
+//                     jQuery('form.payment').attr('action', orgLink);
+//                 }else{
+//                     jQuery('form.payment').attr('action', formUrl[pm]);
+//                 }
+//             }
+//         }else{
+//             jQuery('form.payment').attr('action', orgLink);
+//         }
+//     }else{
+//         jQuery('form.payment').attr('action', orgLink);
+//     }
+//
+// }
 
 // VALIDATE FORM on Responsive-Theme Account site
 function valForm(){
@@ -889,6 +890,11 @@ function valForm(){
                                 jQuery('#birthdate_dd').val = birthYear+'-'+birthMonth+'-'+birthDay;
 
                                 errors = valDirectDebitSecured(errors);
+                            }
+
+                            // change Form action
+                            if(errors[0] === undefined){
+                                jQuery('form.payment').attr('action', formUrl['dd']);
                             }
                         }
 
@@ -1068,7 +1074,21 @@ function valShippingPaymentForm(){
             if(pm == 'dd'){
                 var errors = valInputDdIban(jQuery('.newreg_'+pm+' #iban').val(), pm);
 
-                errors = valDirectDebitSecured(errors);
+                if (jQuery('.newreg_dd #salutation').is(':visible')) {
+                    // getting Values from input fields
+                    var birthDay = jQuery('.newreg_dd select[name=DateDD_Day]').val();
+                    var birthMonth = jQuery('.newreg_dd select[name=DateDD_Month]').val();
+                    var birthYear = jQuery('.newreg_dd select[name=DateDD_Year]').val();
+
+                    jQuery('#birthdate_dd').val = birthYear+'-'+birthMonth+'-'+birthDay;
+
+                    errors = valDirectDebitSecured(errors);
+                }
+
+                // change Form action
+                if(errors[0] === undefined){
+                    jQuery('form.payment').attr('action', formUrl['dd']);
+                }
             }
             if(pm == 'papg'){
                 var dob = new Date(jQuery('.hgw_papg select[name="Date_Year"]').val(), jQuery('.hgw_papg select[name="Date_Month"]').val()-1, jQuery('.hgw_papg select[name="Date_Day"]').val());

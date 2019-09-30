@@ -46,15 +46,15 @@ $(document).ready(function(){
 
                     if( (typeof formUrl !== "undefined") && (formUrl != null)){
                         if((formUrl[pm] == undefined) || (formUrl[pm] == '') || (reuse) || (pm == 'cc') || (pm == 'dc')){
-                            jQuery('form.payment').attr('action', orgLink);
+                            // jQuery('form.payment').attr('action', orgLink);
 
                         }else{
-                            jQuery('form.payment').attr('action', formUrl[pm]);
-                            jQuery('form.frmRegister').attr('action', formUrl[pm]);
+                            // jQuery('form.payment').attr('action', formUrl[pm]);
+                            // jQuery('form.frmRegister').attr('action', formUrl[pm]);
                         }
                     }
 				}else{
-					jQuery('form.payment').attr('action', orgLink);
+					// jQuery('form.payment').attr('action', orgLink);
 					hideForm();
 				}
 			}
@@ -277,7 +277,7 @@ $(document).ready(function(){
 		jQuery('#birthdate_papg').val(birthyear+'-'+birthmonth+'-'+birthday);
 			
 		var formurlpapg = jQuery('.newreg_papg .formurl').val();
-		jQuery('form.payment').attr('action', formurlpapg);
+		// jQuery('form.payment').attr('action', formurlpapg);
 	});
 
 	jQuery('.button-right, .large, .right').click(function(e) {
@@ -299,7 +299,7 @@ $(document).ready(function(){
 		jQuery('#birthdate_san').val(birthyear+'-'+birthmonth+'-'+birthday);
 			
 		var formurlsan = jQuery('.newreg_san .formurl').val();
-		jQuery('form.payment').attr('action', formurlsan);
+		// jQuery('form.payment').attr('action', formurlsan);
 	});
 
 	jQuery('.button-right.large.right').click(function(e) {
@@ -502,8 +502,14 @@ function valForm(){
 
                                 jQuery('#birthdate_dd').val = birthYear+'-'+birthMonth+'-'+birthDay;
 
-                                errors = valDirectDebitSecured(errors);
 
+                                errors = valDirectDebitSecured(errors);
+                            }
+
+                            // change Form action
+                            if(errors[0] === undefined){
+                                jQuery("form.payment").attr('action', formUrl['dd']);
+                                // jQuery(form [name="frmRegister"]).attr('action', formUrl['dd']);
                             }
 
 						}
