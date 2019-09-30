@@ -11,6 +11,7 @@
  */
 use Shopware\Components\CSRFWhitelistAware;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Shopware\Models\Order\Order;
 
 class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Frontend_Payment implements CSRFWhitelistAware{
     var $dbtable = '';
@@ -1700,14 +1701,30 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
             {   // bis SW 5.2.27 aktuell
                 $this->forward('savePayment', 'account', '', $postparams);
             } else {
-                // funktionstüchtig für SW 5.3
-                $this-> redirect(array(
-                        'controller' => 'checkout',
-                        'action' => 'confirm',
-                        'sTarget' => 'checkout',
-                        'sTargetAction' => 'confirm',
-                    )
-                );
+                switch ($this->Request()->getParam('sTarget')){
+                    case 'checkout':
+                        return $this-> redirect(array(
+                                'controller' => 'checkout',
+                                'action' => 'confirm',
+                            )
+                        );
+                        break;
+                    case 'account':
+                        return $this-> redirect(array(
+                                'controller' => 'account',
+                                'action' => 'index',
+                            )
+                        );
+                        break;
+                    default:
+                        return $this-> redirect(array(
+                                'controller' => 'index',
+                                'action' => 'index',
+                            )
+                        );
+                        break;
+                }
+                exit();
             }
 
         }catch(Exception $e){
@@ -4036,7 +4053,7 @@ $params['CRITERION.SHOPWARESESSION'] = Shopware()->Session()->get('sessionId');
 
     public function convertOrder($transactionData, $paymentStatus = 12)
     {
-        // Customermodel hat unter 5.1.6 noch keine Beziehung zu defaultShippingAdress oder defaultBillingAdress
+        // Customermodel hat unter 5.1.6 noch keine Beziehung zu defaultShippingAddress oder defaultBillingAddress
         // daher musste funktion angepasst werden
 
         if(version_compare(Shopware()->Config()->version,"5.2.0","<")){
@@ -4217,6 +4234,9 @@ $params['CRITERION.SHOPWARESESSION'] = Shopware()->Session()->get('sessionId');
 '.' Short-Id: '.$transactionData['IDENTIFICATION_SHORTID']);
                 $orderObject->setPaymentStatus($statusModelPayment);
                 $orderObject->setClearedDate($transactionData['PROCESSING_TIMESTAMP']);
+
+                // setting Article quantity
+                $this->convertCancelledOrderInStock($orderObject);
 
                 // saving all generated Models and Onjects
                 Shopware()->Models()->flush($orderObject);
@@ -4430,7 +4450,6 @@ $params['CRITERION.SHOPWARESESSION'] = Shopware()->Session()->get('sessionId');
                         'number'                    => !empty($customerDbResult[0]['customer']['number']) ? $customerDbResult[0]['customer']['number'] : '',
                     ];
 
-
                     /**
                      * @var \Shopware\Models\Country\Country $countryModel
                      */
@@ -4460,6 +4479,9 @@ $params['CRITERION.SHOPWARESESSION'] = Shopware()->Session()->get('sessionId');
 '.' Short-Id: '.$transactionData['IDENTIFICATION_SHORTID']);
                     $orderObject->setPaymentStatus($statusModelPayment);
                     $orderObject->setClearedDate($transactionData['PROCESSING_TIMESTAMP']);
+
+                    // setting Article quantity
+                    $this->convertCancelledOrderInStock($orderObject);
 
                     // saving all generated Models and Onjects
                     Shopware()->Models()->flush();
@@ -4554,4 +4576,86 @@ $params['CRITERION.SHOPWARESESSION'] = Shopware()->Session()->get('sessionId');
         }
         return $swVersion;
     }
+
+    /**
+     * Checks if the order position is a regular product
+     * @param Shopware\Models\Order\Detail $orderDetailModel
+     * @return bool
+     */
+    private function isProductPosition(\Shopware\Models\Order\Detail $orderDetailModel)
+    {
+        return $orderDetailModel->getMode() === 0;
+    }
+
+    /**
+     * @param \Shopware\Models\Article\Detail $variant
+     * @param Order $order
+     * @return null|\Shopware\Models\Order\Detail
+     */
+    private function getOrderPositionByProduct(\Shopware\Models\Article\Detail $variant, Order $order)
+    {
+        /** @var $detail \Shopware\Models\Order\Detail */
+        foreach ($order->getDetails() as $detail) {
+
+            if (!$this->isProductPosition($detail)) {
+                continue;
+            }
+            if ($detail->getArticleNumber() === $variant->getNumber()) {
+                return $detail;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Function which calculates, validates and updates the new in stock when an order without customer-session was created
+     * @param Shopware\Models\Order\Order $orderModel
+     * @return bool
+     */
+    private function convertCancelledOrderInStock(\Shopware\Models\Order\Order $orderModel)
+    {
+        /** @var $entityManager \Shopware\Components\Model\ModelManager */
+        $entityManager = $this->get('models');
+
+        $products = $this->getProductsOfOrder($orderModel);
+
+        foreach ($products as $product) {
+            $position = $this->getOrderPositionByProduct($product, $orderModel);
+            if (!$position) {
+                continue;
+            }
+
+            $product->setInStock(
+                $product->getInStock() - $position->getQuantity()
+            );
+
+            $entityManager->persist($product);
+        }
+        return true;
+    }
+
+    /**
+     * @param Order $order
+     *
+     * @return \Shopware\Models\Article\Detail[]
+     */
+    private function getProductsOfOrder(Order $order)
+    {
+        /** @var $repository \Shopware\Components\Model\ModelRepository */
+        $repository = Shopware()->Models()->getRepository('Shopware\Models\Article\Detail');
+
+        $products = [];
+        foreach ($order->getDetails() as $detail) {
+            /** @var $detail \Shopware\Models\Order\Detail */
+            if (!$this->isProductPosition($detail)) {
+                continue;
+            }
+            $variant = $repository->findOneBy(['number' => $detail->getArticleNumber()]);
+            $products[] = $variant;
+        }
+
+        return $products;
+    }
+
 }
