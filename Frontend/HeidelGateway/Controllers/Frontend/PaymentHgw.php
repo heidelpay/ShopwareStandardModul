@@ -4128,7 +4128,7 @@ $params['CRITERION.SHOPWARESESSION'] = Shopware()->Session()->get('sessionId');
                 // Casting null values to empty strings to fulfill the restrictions of the s_order_billingaddress table
                 $billingAddress = [
                     'id'                        => !empty($customerDbResult[0]['customer']['billing']['id'])          ? $customerDbResult[0]['customer']['billing']['id'] : ' ',
-                    'id'                        => !empty($customerDbResult[0]['customer']['billing']['customerId'])  ? $customerDbResult[0]['customer']['billing']['customerId'] : ' ',
+                    'customerId'                => !empty($customerDbResult[0]['customer']['billing']['customerId'])  ? $customerDbResult[0]['customer']['billing']['customerId'] : ' ',
                     'company'                   => !empty($customerDbResult[0]['customer']['billing']['company'])     ? $customerDbResult[0]['customer']['billing']['company'] : ' ',
                     'department'                => !empty($customerDbResult[0]['customer']['billing']['department'])  ? $customerDbResult[0]['customer']['billing']['department'] : ' ',
                     'title'                     => !empty($customerDbResult[0]['customer']['billing']['title'])       ? $customerDbResult[0]['customer']['billing']['title'] : ' ',
