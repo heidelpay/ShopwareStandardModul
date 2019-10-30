@@ -2718,10 +2718,12 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
 
             $this->hgw()->createTransactionsTable();
             try{
+                $duplicateEntry = false;
                 $this->hgw()->saveRes($xmlData);
             }catch(Exception $e){
                 // message 1062: Duplicate entry '%s' for key %d | https://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
                 if($e->getPrevious()->errorInfo['1'] == '1062'){
+                    $duplicateEntry = true;
                     // check if PUSH 'result', 'statuscode', 'return' or 'returncode' differ from DB entry and update, if so.
                     $sql = '
 						SELECT * FROM `s_plugin_hgw_transactions`
@@ -2731,7 +2733,6 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
 
                     $params = array($xmlData['IDENTIFICATION_TRANSACTIONID'], $xmlData['IDENTIFICATION_UNIQUEID']);
                     $data = Shopware()->Db()->fetchRow($sql, $params);
-
                     if(
                         ($data['result'] != $xmlData['PROCESSING_RESULT']) ||
                         ($data['statuscode'] != $xmlData['PROCESSING_STATUS_CODE']) ||
@@ -2773,7 +2774,7 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                     if(!empty($url)){
                         $this->hgw()->doRequest($xmlData, $url); // send response to shop via POST
                     }else{
-                        if($e->getPrevious()->errorInfo['1'] != '1062'){
+                        if(!$duplicateEntry){
                             $this->hgw()->Logging('rawnotifyAction | response_url missing');
                         }
                     }
@@ -2786,7 +2787,6 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                     }
                 }
             }
-
             header('HTTP/1.1 200 OK');
             $this->View()->MES = 'OK';
         }catch(Exception $e){
