@@ -2138,7 +2138,7 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                         Shopware()->Session()->sOrderVariables['accountBrand'] 	= $this->getBrandName($parameters->ACCOUNT_BRAND);
                         break;
 
-                    case 'iv';
+                    case 'iv':
                         // setting Comments for frontend and Backend
                         Shopware()->Session()->sOrderVariables['prepaymentText'] = $comment;
                         // Santander saving birthdate
@@ -2235,7 +2235,7 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
 
                         Shopware()->Session()->sOrderVariables['prepaymentText'] = $comment;
 
-                        // sendeing Prepayment Email
+                        // sending Prepayment Email
                         if($this->Config()->HGW_PP_MAIL > 0){
                             $repl = array(
                                 '{AMOUNT}'						=> str_replace(".",",",$parameters->PRESENTATION_AMOUNT),
