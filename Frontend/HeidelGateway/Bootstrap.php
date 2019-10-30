@@ -5093,13 +5093,12 @@ Mit freundlichen Gruessen
 		try {
 			Shopware()->Db()->query($sql, $params);
 		} catch (Exception $e) {
-			// if entry is in db yet do not write again
+        	// if entry is in db yet do not write again
 			if($e->getPrevious()->errorInfo['1'] != '1062'){
 				Shopware()->Plugins()->Frontend()->HeidelGateway()->Logging('saveRes | '.$e->getMessage());
 			}
 			return;
 		}
-
 	}
 
 	/**
