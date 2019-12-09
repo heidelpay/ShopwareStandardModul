@@ -28,7 +28,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 	 * @return string version number
 	 */
 	public function getVersion(){
-		return '19.09.26';
+		return '19.11.25';
 	}
 
 	/**
@@ -993,21 +993,25 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                 } catch (Exception $e) {
                     $this->logError($msg,$e);
                 }
-
+            // Compatibility for SW 5.6
+            case '19.08.21':
             // Fix for no additional E-Mail for invoice B2B is sent after an order
             // Feature setting article in stock in case of an order without session
             // Fix for redirect after saving registered paymentdata in savePaymentAction
+            // Fix for switching to paymentmethod dd with reg
+            // Fix for a php-fatal exception could be thrown in case of incoming pushes "Call to a member function getPrevious() on null"
             case '19.09.16':
+            case '19.10.31':
                 try{
-                   $msg .= '* update 19.09.16<br />';
+                    $msg .= '* update 19.10.31<br />';
                 } catch (Exception $e) {
                     $this->logError($msg,$e);
                 }
-            // Fix for switching to paymentmethod dd with reg
-            case '19.09.26':
+
+            case '19.11.25':
                 try{
-                    $msg .= '* update 19.09.<br />';
-                } catch (Exception $e) {
+                    $msg .= '* update 19.11.25<br />';
+                } catch (Exception $e){
                     $this->logError($msg,$e);
                 }
 
@@ -1868,6 +1872,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 
 	/**
 	 * Hook for custom code before document is renderd
+     *
 	 */
 	public function onBeforeRenderDocument(Enlight_Hook_HookArgs $args){
 		try{
@@ -2497,16 +2502,6 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                                 $view->extendsTemplate('register/hp_checkout_confirmreg.tpl');
                                 break;
                         }
-//                        if(
-//                            ($user['additional']['payment']['name'] == 'hgw_mpa')
-////                            ||
-////                            ($user['additional']['payment']['name'] == 'hgw_cc') ||
-////                            ($user['additional']['payment']['name'] == 'hgw_dc') ||
-////                            ($user['additional']['payment']['name'] == 'hgw_dd')
-//
-//                        ){ // or every other wallet
-//                            $view->extendsTemplate('register/hp_checkout_confirm.tpl');
-//                        }
                     }
 
 					if($_SESSION['Shopware']['HPWallet'] == '1'){
@@ -5093,13 +5088,12 @@ Mit freundlichen Gruessen
 		try {
 			Shopware()->Db()->query($sql, $params);
 		} catch (Exception $e) {
-			// if entry is in db yet do not write again
+        	// if entry is in db yet do not write again
 			if($e->getPrevious()->errorInfo['1'] != '1062'){
 				Shopware()->Plugins()->Frontend()->HeidelGateway()->Logging('saveRes | '.$e->getMessage());
 			}
 			return;
 		}
-
 	}
 
 	/**

@@ -49,7 +49,7 @@
 				{if isset($regData)}
 					{html_select_date|utf8_encode
 					prefix='DateDD_'
-					time=$birthdateDD.birthdate.formatted
+					time=$birthdateDD
 					start_year='-10'
 					end_year='-100'
 					reverse_years='true'

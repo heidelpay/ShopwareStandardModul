@@ -148,7 +148,11 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
 
                     $shippingHash = $this->createShippingHash($user, $activePayment);
                     $last = mktime(23,59,00,$reg['expMonth']+1,0,$reg['expYear']); // timestamp: last day of registration month
-                    if(!empty($reg) && ($reg['uid'] != '') && ((($reg['expMonth'] == '0') && ($reg['expYear'] == '0')) || ($last > time())) && (($reg['shippingHash'] == $shippingHash) || ($this->Config()->HGW_SHIPPINGHASH == 1))){
+                    if(
+                        !empty($reg) && ($reg['uid'] != '') && ((($reg['expMonth'] == '0') && ($reg['expYear'] == '0')) ||
+                        ($last > time())) && (($reg['shippingHash'] == $shippingHash) ||
+                        ($this->Config()->HGW_SHIPPINGHASH == 1))
+                    ){
                         $ppd_config = $this->hgw()->ppd_config($this->Config()->$booking, $activePayment, $reg['uid'], true);
                         $ppd_user = $this->hgw()->ppd_user(NULL, $activePayment);
 
@@ -229,7 +233,6 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
 
                         $getFormUrl = $this->getFormUrl($activePayment, $this->Config()->$booking, $user['additional']['user']['id'], $tempID, $uid, $basket, $ppd_crit);
                         unset(Shopware()->Session()->HPGateway);
-
                         $cardBrands[$activePayment]	= json_decode($getFormUrl['CONFIG_BRANDS'], true);
                         $bankCountry[$activePayment]	= json_decode($getFormUrl['CONFIG_BANKCOUNTRY'], true);
 
@@ -1297,20 +1300,24 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                         Shopware()->Session()->$token 	= $resp['__csrf_token'];
 
                         $this->Request()->setPost('sTarget',$resp['var_sTarget']);
-
                         $registrierteZahlart = $resp['var_Register'];
                         $this->Request()->setPost('register', $registrierteZahlart['payment']);
 
                         //Fallback case if target is not set
                         if(empty($resp['var_sTarget'])){$resp['var_sTarget'] = 'checkout';}
 
+//                        print Shopware()->Front()->Router()->assemble(array(
+//                            'forceSecure' 	=> 1,
+//                            'controller' 	=> 'PaymentHgw',
+//                            'action'		=> 'savePayment',
+//                            'sRegister' 	=> $registrierteZahlart['payment'],
+//                            'sTarget'		=> $resp['var_sTarget'],
+//                            'txnId'			=> $resp['IDENTIFICATION_TRANSACTIONID'],
+//                        ));
                         print Shopware()->Front()->Router()->assemble(array(
                             'forceSecure' 	=> 1,
-                            'controller' 	=> 'PaymentHgw',
-                            'action'		=> 'savePayment',
-                            'sRegister' 	=> $registrierteZahlart['payment'],
-                            'sTarget'		=> $resp['var_sTarget'],
-                            'txnId'			=> $resp['IDENTIFICATION_TRANSACTIONID'],
+                            'controller' 	=> 'checkout',
+                            'action'		=> 'confirm',
                         ));
                         return;
                         break;
@@ -1662,7 +1669,6 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
             $_SERVER['REQUEST_METHOD'] = 'GET';
             $this->Request()->setPost('isPost', 'true');
             $transaction = $this->getHgwTransactions($this->Request()->txnId);
-
             $token = json_decode($transaction['jsonresponse']);
 
             $tokenNameSession = 'X-CSRF-Token';
