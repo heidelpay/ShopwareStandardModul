@@ -2536,6 +2536,8 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
     public function addOrderInfos($transactionID, $params, $status=NULL){
         try{
             Shopware()->Models()->clear();
+
+            /** @var Shopware\Models\Order\Order $orderModel */
             $orderModel = Shopware()
                 ->Models()
                 ->getRepository('Shopware\Models\Order\Order')
@@ -2552,13 +2554,20 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
             {
                 $orderModel->setClearedDate(date('d.m.Y H:i:s'));
             }
-            // if internalComment is set, read old commment and add time stamp
-            $alterWert = $orderModel->getInternalComment();
-            if(!empty($params['internalcomment'])){
-                $params['internalcomment'] = date('d.m.Y H:i:s') . "\n" . $params['internalcomment'] . "\n \n" . $alterWert;
-            }else{
-                $params['internalcomment'] = $alterWert;
+
+            try {
+                // if internalComment is set, read old commment and add time stamp
+                $alterWert = $orderModel->getInternalComment();
+                if(!empty($params['internalcomment'])){
+                    $params['internalcomment'] = date('d.m.Y H:i:s') . "\n" . $params['internalcomment'] . "\n \n" . $alterWert;
+                }else{
+                    $params['internalcomment'] = $alterWert;
+                }
+            } catch (Exception $ex) {
+                Shopware()->Container()->get('pluginlogger')->error('addOrderInfos failed cannot write order comment | '.$ex->getMessage());
             }
+
+
 
             // mapping database -> model
             $orderMappings = array(
