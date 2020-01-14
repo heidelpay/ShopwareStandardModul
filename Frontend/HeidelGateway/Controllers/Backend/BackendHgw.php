@@ -574,7 +574,6 @@ class Shopware_Controllers_Backend_BackendHgw extends Shopware_Controllers_Backe
                                     }
                                 }
                             } elseif ($papg || $ivb2b){
-mail("sascha.pflueger@heidelpay.com","Ges. Rech B2C B2B",print_r("",1));
                                 if ($payInfo['payType'] == 'pa') {
                                     $btns['rv']['active'] =
                                     $btns['fi']['active'] = 'true';
