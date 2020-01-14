@@ -120,6 +120,7 @@ class Shopware_Controllers_Backend_BackendHgw extends Shopware_Controllers_Backe
 					$payName = 'ot';
 					break;
 				case 'bs':
+				case 'iv':
                 case 'san':
                 case 'ivpd':
                 case 'papg':
@@ -274,7 +275,7 @@ class Shopware_Controllers_Backend_BackendHgw extends Shopware_Controllers_Backe
 				$data[$newKey] = $value;
 				unset($data[$key]);
 			}
-
+			
 			$resp = $this->callDoRequest($data);
             Shopware()->Plugins()->Frontend()->HeidelGateway()->saveRes($resp);
 
@@ -462,6 +463,7 @@ class Shopware_Controllers_Backend_BackendHgw extends Shopware_Controllers_Backe
 			$btns['fi']['name']		= 'Finalize';
 			$btns['fi']['icon']		= 'fa-truck';
 			$btns['fi']['active']	= 'false';
+			
 			if($this->showButtons){
 				foreach(array_reverse($transactions) as $key => $value){
                     if($payName == 'pay'){ $payName = 'va'; }
@@ -470,11 +472,12 @@ class Shopware_Controllers_Backend_BackendHgw extends Shopware_Controllers_Backe
 					if($value['TRANSACTION_CHANNEL'] != $this->FrontendConfigHGW()->$payChan){ break; }
 
 					$payInfo = $this->getPayInfo($value['PAYMENT_CODE'], $beLocaleId);
-
+					
 					if($payName == 'papg'){ $payName = 'iv'; $papg = true; }
 					if($payName == 'ivb2b'){ $payName = 'iv'; $ivb2b = true; }
 					if($payName == 'san'){ $payName = 'iv'; $san = true; }
 					if($payName == 'ivpd'){ $payName = 'iv'; $ivpd = true; }
+					if($payName == 'iv'){ $payName = 'iv'; $iv = true; }
 
 					switch($payName){
 						case 'cc':
@@ -520,6 +523,25 @@ class Shopware_Controllers_Backend_BackendHgw extends Shopware_Controllers_Backe
 							break;
 						case 'bs':
 						case 'iv':
+						    if($iv){
+                                if($payInfo['payType'] == 'pa') {
+                                    $btns['rv']['active'] = 'true';
+
+                                    $maxRv = $value['PRESENTATION_AMOUNT'];
+                                }
+                                if($payInfo['payType'] == 'rv') {
+                                    mail("sascha.pflueger@heidelpay.com","Transaktion",print_r($value,1));
+                                    $btns['rv']['active'] = 'false';
+                                    $maxRv = $value['PRESENTATION_AMOUNT'];
+                                }
+
+                                if($payInfo['payType'] == 'rc'){
+                                    $btns['rv']['active'] = 'false';
+                                    $btns['rf']['active'] = 'true';
+                                    if(!isset($maxRf)){	$maxRf = $value['PRESENTATION_AMOUNT']; }
+                                    $btns['rf']['trans'][] = $this->storeTrans($value, $payName, $payInfo);
+                                }
+                            }
                             if($ivpd || $san)
 						    {
                                 if($payInfo['payType'] == 'pa'){
@@ -552,6 +574,7 @@ class Shopware_Controllers_Backend_BackendHgw extends Shopware_Controllers_Backe
                                     }
                                 }
                             } elseif ($papg || $ivb2b){
+mail("sascha.pflueger@heidelpay.com","Ges. Rech B2C B2B",print_r("",1));
                                 if ($payInfo['payType'] == 'pa') {
                                     $btns['rv']['active'] =
                                     $btns['fi']['active'] = 'true';
@@ -613,9 +636,10 @@ class Shopware_Controllers_Backend_BackendHgw extends Shopware_Controllers_Backe
 
                             }
                             else {
-                                $btns['rv']['active'] = $btns['fi']['active'] = 'false';
-								$btns['fi']['active'] = 'false';
-								$btns['rv']['active'] = 'true';
+//mail("sascha.pflueger@heidelpay.com","ELSE",print_r("",1));
+//                                $btns['rv']['active'] = $btns['fi']['active'] = 'false';
+//								$btns['fi']['active'] = 'false';
+//								$btns['rv']['active'] = 'true';
                             }
 
 //                            if($payInfo['payType'] == 'pa'){
@@ -714,6 +738,7 @@ class Shopware_Controllers_Backend_BackendHgw extends Shopware_Controllers_Backe
 					if($ivb2b)   { $payName = 'ivb2b'; $ivb2b = false; }
 					if($san)    { $payName = 'san'; $san = false; }
 					if($ivpd)   { $payName = 'ivpd'; $ivpd = false; }
+					if($iv)     { $payName = 'iv'; $iv = false; }
 				}
 
 				$btns['rf']['trans'][0]['maxRf'] = number_format($maxRf, 2,'.','');
