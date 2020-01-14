@@ -530,7 +530,6 @@ class Shopware_Controllers_Backend_BackendHgw extends Shopware_Controllers_Backe
                                     $maxRv = $value['PRESENTATION_AMOUNT'];
                                 }
                                 if($payInfo['payType'] == 'rv') {
-                                    mail("sascha.pflueger@heidelpay.com","Transaktion",print_r($value,1));
                                     $btns['rv']['active'] = 'false';
                                     $maxRv = $value['PRESENTATION_AMOUNT'];
                                 }
