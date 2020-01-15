@@ -15,7 +15,7 @@
 
 		<div class="newreg_{$pm}" {if {$hasReg{$pm}}} style="display: none;" {/if}>
 			{if $frame.$pm}
-				<iframe id="hp_frame_{$pm}" src="{$formUrl.$pm}">your browser doesn't support iframes</iframe>
+				<iframe style="width:100%; max-width:310px" id="hp_frame_{$pm}" src="{$formUrl.$pm}" >your browser doesn't support iframes</iframe>
 			{/if}
 		</div>
 		
