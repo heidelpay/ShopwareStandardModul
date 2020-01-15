@@ -3482,6 +3482,8 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                     $type = (!array_key_exists('PAYMENT.TYPE',$config)) ? 'PA' : $config['PAYMENT.TYPE'];
                     $params['PAYMENT.CODE'] 		= "OT.".$type;
                     $params['FRONTEND.ENABLED'] 	= "true";
+                    $params['ACCOUNT.COUNTRY'] 	    = "AT";
+
                     // 					$params['ACCOUNT.BRAND'] 		= "EPS";
                     break;
                 /* postfinance */
