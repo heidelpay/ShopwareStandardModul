@@ -28,7 +28,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 	 * @return string version number
 	 */
 	public function getVersion(){
-		return '19.12.12';
+		return '20.01.15';
 	}
 
 	/**
@@ -998,8 +998,6 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
             // Fix for no additional E-Mail for invoice B2B is sent after an order
             // Feature setting article in stock in case of an order without session
             // Fix for redirect after saving registered paymentdata in savePaymentAction
-            // Fix for switching to paymentmethod dd with reg
-            // Fix for a php-fatal exception could be thrown in case of incoming pushes "Call to a member function getPrevious() on null"
             case '19.09.16':
             case '19.10.31':
                 try{
@@ -1008,9 +1006,12 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                     $this->logError($msg,$e);
                 }
 
-            case '19.12.12':
+            // Fix for switching to paymentmethod dd with reg
+            // Fix for a php-fatal exception could be thrown in case of incoming pushes "Call to a member function getPrevious() on null"
+            // Fix for Mobile-browsers with Card-transactions
+            case '20.01.15':
                 try{
-                    $msg .= '* update 19.12.12<br />';
+                    $msg .= '* update 20.01.15<br />';
                 } catch (Exception $e){
                     $this->logError($msg,$e);
                 }
