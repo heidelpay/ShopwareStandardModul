@@ -145,7 +145,6 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                     // Registrierung ist vorhanden
                     $hasReg = true;
                     $reg = $this->hgw()->getRegData($user['additional']['user']['id'], $activePayment);
-mail("sascha.pflueger@heidelpay.com","GatewayAction",print_r("",1));
                     $shippingHash = $this->createShippingHash($user, $activePayment);
                     $last = mktime(23,59,00,$reg['expMonth']+1,0,$reg['expYear']); // timestamp: last day of registration month
                     if(
@@ -1031,7 +1030,7 @@ mail("sascha.pflueger@heidelpay.com","GatewayAction",print_r("",1));
                     $resp['NAME_BIRTHDATE'] 	= $this->Request()->getPost('NAME_BIRTHDATE') == true ? htmlspecialchars($this->Request()->getPost('birthdate_san'), $flag, $enc) : '';
                 }
                 $orgHash 					= $this->createSecretHash($resp['IDENTIFICATION_TRANSACTIONID']);
-mail("sascha.pflueger@heidelpay.com","responseAction POST",print_r($_POST,1));
+
                 if($resp['CRITERION_SECRET'] != $orgHash){
                     Shopware()->Session()->HPError = '';
                     $this->hgw()->Logging(
@@ -1209,7 +1208,7 @@ mail("sascha.pflueger@heidelpay.com","responseAction POST",print_r($_POST,1));
             } else {
                 $resp['NAME_BIRTHDATE'] 	= $this->Request()->getPost('NAME_BIRTHDATE') == true ? htmlspecialchars($this->Request()->getPost('birthdate_san'), $flag, $enc) : '';
             }
-mail("sascha.pflueger@heidelpay.com","responseREGAction POST",print_r($_POST,1));
+
             // case for suspected Manipulation
             $orgHash = $this->createSecretHash($resp['IDENTIFICATION_TRANSACTIONID']);
             if($resp['CRITERION_SECRET'] != $orgHash){
