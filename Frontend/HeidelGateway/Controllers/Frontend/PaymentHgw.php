@@ -20,6 +20,11 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
     var $httpstatus = '';
 
     /**
+     * @var Enlight_Event_EventManager
+     */
+    protected $eventManager;
+
+    /**
      * Index action method
      */
     public function indexAction(){
@@ -2064,6 +2069,7 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                         'IDENTIFICATION_SHORTID' => $parameters->IDENTIFICATION_SHORTID ,
                         'CRITERION_TEMPORDER'       => $parameters->CRITERION_TEMPORDER,
                         'CRITERION_USER_ID'       => $parameters->CRITERION_USER_ID,
+                        'PAYMENT_CODE'       => $parameters->PAYMENT_CODE,
                     ],21);
                     Shopware()->Container()->get('pluginlogger')->info("heidelpay successAction convertOrder created an order | Ordernumber: ".$return);
                 }
@@ -2076,6 +2082,7 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                         'IDENTIFICATION_SHORTID' => $parameters->IDENTIFICATION_SHORTID ,
                         'CRITERION_TEMPORDER'       => $parameters->CRITERION_TEMPORDER,
                         'CRITERION_USER_ID'       => $parameters->CRITERION_USER_ID,
+                        'PAYMENT_CODE'       => $parameters->PAYMENT_CODE,
                     ],21);
                     Shopware()->Container()->get('pluginlogger')->info("heidelpay successAction convertOrder 2nd try created an order | Ordernumber: ".$return);
                 }
@@ -4070,7 +4077,6 @@ $params['CRITERION.SHOPWARESESSION'] = Shopware()->Session()->get('sessionId');
     {
         // Customermodel hat unter 5.1.6 noch keine Beziehung zu defaultShippingAddress oder defaultBillingAddress
         // daher musste funktion angepasst werden
-
         if(version_compare(Shopware()->Config()->version,"5.2.0","<")){
             try{
                 // Get user, shipping and billing
@@ -4535,15 +4541,36 @@ $params['CRITERION.SHOPWARESESSION'] = Shopware()->Session()->get('sessionId');
 
                     // to send a Status E-Mail to customer
                     // sending e-mail via $this->saveOrder() doesn't work
-                    $this->savePaymentStatus(
-                        $transactionData['IDENTIFICATION_TRANSACTIONID'],
-                        $transactionData['IDENTIFICATION_UNIQUEID'],
-                        12,
-                        true
-                    );
+                    if($transactionData['PAYMENT_CODE'] == "IV.PA"){
+                        $this->savePaymentStatus(
+                            $transactionData['IDENTIFICATION_TRANSACTIONID'],
+                            $transactionData['IDENTIFICATION_UNIQUEID'],
+                            21,
+                            true
+                        );
+                    } else {
+                        $this->savePaymentStatus(
+                            $transactionData['IDENTIFICATION_TRANSACTIONID'],
+                            $transactionData['IDENTIFICATION_UNIQUEID'],
+                            12,
+                            true
+                        );
+                    }
+
                     Shopware()->Container()->get('pluginlogger')->info("heidelpay convertOrder 4/4 Paymentstatus changed, E-Mail sent to customer, End of convertOrder for ordernumber: ".$newOrderNumber);
 
                     $this->View()->assign(['success' => true]);
+
+                    Shopware()->Container()->get('events')->notify(
+                        'HeidelGatewayEvent_Controller_convertOrderAction',
+                        [
+                            'orderNumber'   => $newOrderNumber,
+                            'transactionid' => $transactionData['IDENTIFICATION_TRANSACTIONID'],
+                            'heidelShortId' => $transactionData['IDENTIFICATION_SHORTID'],
+                            'userIdInShop'  => $transactionData['CRITERION_USER_ID']
+
+                        ]
+                    );
 
                     return $newOrderNumber;
                 }
