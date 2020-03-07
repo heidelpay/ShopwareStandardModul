@@ -1413,13 +1413,15 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 						$payId = $translation['payId'];
 					}
 
-					$translationObject = new Shopware_Components_Translation();
-					$translationObject->write(
-							$shopId, 'config_payment', $payId, array(
-									'description' => $translation['trans_desc'],
-									'additionalDescription' => $translation['trans_addDesc'],
-							), true
-							);
+                    if(Shopware()->Config()->version <= "5.5.10"){
+                        $translationObject = new Shopware_Components_Translation();
+                        $translationObject->write(
+                            $shopId, 'config_payment', $payId, array(
+                            'description' => $translation['trans_desc'],
+                            'additionalDescription' => $translation['trans_addDesc'],
+                        ), true
+                        );
+                    }
 				}
 			}
 		}catch(Exception $e){
@@ -2141,25 +2143,27 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                                                                                 widerrufen. Ausführliche Informationen zu dieser Einwilligung sowie die Möglichkeit zum Widerruf
                                                                                 finde ich </strong><a href="https://www.santander.de/applications/rechnungskauf/werbewiderspruch/" target="_blank">hier</a>.
                                                                             </strong>';
-                                                    $recoveryTextPrivacyPolicy = '<strong>Ich willige in die Übermittlung meiner personenbezogenen Daten an die Santander Consumer Bank AG
-                                                                                    gemäß den näheren Bestimmungen des beigefügten <a href="https://www.santander.de/applications/rechnungskauf/datenschutzbestimmungen" target="_blank">Einwilligungserklärungstextes</a> sowie an die darin
-                                                                                    genannten Auskunfteien und in die Durchführung einer automatisierten Entscheidung ein.</strong>
-                                                                                    </br>
-                                                                                    Nähere Informationen finden Sie in den <a href="https://www.santander.de/applications/rechnungskauf/datenschutzbestimmungen" target="_blank">Datenschutzhinweisen</a>
-                                                                                ';
+                                                    $recoveryTextPrivacyPolicy = '
+                                                                            <strong>Das Anklicken des Buttons “Jetzt kaufen” löst eine Übermittlung Ihrer 
+                                                                            personenberzogenen Daten an die Santander Consumer Bank AG zum Zweck der Bonitätsprüfung aus. 
+                                                                            <br />Nähere Informationen finden Sie in den Datenschutzhinweisen der Santander für den 
+                                                                            <a href=\"https://www.santander.de/static/datenschutzhinweise/rechnungskauf/datenschutzhinweise.html\" target=\"blank\">Rechnungs-/Ratenkauf</a>. 
+                                                                            Der Kunde ist mit <a href=\"https://applications.santander.de/applications/rechnungskauf/werbehinweise\" target=\"_blank\">werblicher Kommunikation</a> 
+                                                                            durch die Santander einverstanden. Die Erteilung dieser Einwilligung ist freiwillig und kann jederzeit <u>widerrufen</u> werden.
+                                                                            <strong>';
 
                                                     $sanJson 			= json_decode($getFormUrl['CONFIG_OPTIN_TEXT'],true);
+                                                    $sanJsonPrivPol     = json_decode($getFormUrl['CONFIG_OPTIN_TEXT_SCB_2'],true);
 
-                                                    $view->optin_San_logoUrl 		= empty($sanJson['logolink'])       ? $recoveryLogoUrl          : $sanJson['logolink'];
-                                                    $view->optin_San_adv		    = empty($sanJson['optin'])          ? $recoveryTextOptin        : $sanJson['optin'];
-                                                    $view->optin_San_privpol		= empty($sanJson['privacy_policy']) ? $recoveryTextPrivacyPolicy: $sanJson['privacy_policy'];
+                                                    $view->optin_San_logoUrl 		= empty($sanJson['logolink'])   ? $recoveryLogoUrl          : $sanJson['logolink'];
+                                                    $view->optin_San_adv		    = empty($sanJson['optin'])      ? $recoveryTextOptin        : $sanJson['optin'];
+                                                    $view->optin_San_privpol		= empty($sanJsonPrivPol['optin'])? $recoveryTextPrivacyPolicy: $sanJsonPrivPol['optin'];
 
                                                     $view->accountHolder_San	    = $getFormUrl['ACCOUNT_HOLDER'];
                                                     $view->checkOptin_San           = strtoupper($dobSan['CUSTOMER_OPTIN']);
                                                     $view->checkPrivacyPolicy_San   = strtoupper($dobSan['CUSTOMER_ACCEPT_PRIVACY_POLICY']);
 
                                                     $view->logoLink_San             = isset($sanJson['santander_iv_logo_link']) ? $sanJson['santander_iv_logo_link'] : $sanJson['santander_iv_img_link'];
-
                                                 }
 
 
