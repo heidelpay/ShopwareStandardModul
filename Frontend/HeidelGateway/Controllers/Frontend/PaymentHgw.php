@@ -4611,9 +4611,13 @@ $params['CRITERION.SHOPWARESESSION'] = Shopware()->Session()->get('sessionId');
      */
     private function getSwVersion()
     {
-        if (defined('Shopware::VERSION')) {
-            $swVersion = Shopware::VERSION;
-        } else {
+        if(!empty(Shopware()->Config()->version)){
+            $swVersion = Shopware()->Config()->version;
+        }
+//        if (defined('Shopware::VERSION')) {
+//            $swVersion = Shopware::VERSION;
+//        }
+        else {
             $swVersion = $this->container->get('config')->get('version');
         }
         return $swVersion;

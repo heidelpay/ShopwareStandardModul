@@ -28,7 +28,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 	 * @return string version number
 	 */
 	public function getVersion(){
-		return '20.01.15';
+		return '20.03.10';
 	}
 
 	/**
@@ -1009,9 +1009,11 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
             // Fix for switching to paymentmethod dd with reg
             // Fix for a php-fatal exception could be thrown in case of incoming pushes "Call to a member function getPrevious() on null"
             // Fix for Mobile-browsers with Card-transactions
+            // Fix for PayPal registrations
             case '20.01.15':
+            case '20.03.10':
                 try{
-                    $msg .= '* update 20.01.15<br />';
+                    $msg .= '* update 20.03.10<br />';
                 } catch (Exception $e){
                     $this->logError($msg,$e);
                 }
@@ -2286,6 +2288,25 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 							}
 						}
 			}
+
+            // Case for PayPal registration
+            if(
+                ($request->getControllerName() == 'checkout' &&  $action == 'saveShippingPayment') ||
+                ($request->getControllerName() == 'account' &&  $action == 'savePayment')
+            ){
+                $user = Shopware()->Modules()->Admin()->sGetUserData();
+
+                if(
+                    ($user['additional']['payment']['name'] == "hgw_pay") &&
+                    (($config->HGW_VA_BOOKING_MODE == '3') || ($config->HGW_VA_BOOKING_MODE == '4'))
+                ) {
+                    $user = Shopware()->Modules()->Admin()->sGetUserData();
+                    $postData = $request->getPost();
+                    if (!empty($postData['heidelFormUrlPayPal'])){
+                        return $args->getSubject()->redirect($postData['heidelFormUrlPayPal']);
+                    }
+                }
+            }
 
             // Case for Santander to save Values to DB to use them in Request on gatewayAction()
             if(
