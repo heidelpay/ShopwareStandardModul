@@ -117,6 +117,7 @@ class Shopware_Controllers_Backend_BackendHgw extends Shopware_Controllers_Backe
 					break;
 				case 'p24':
 				case 'sue':
+				case 'eps':
 					$payName = 'ot';
 					break;
 				case 'bs':
@@ -479,7 +480,7 @@ class Shopware_Controllers_Backend_BackendHgw extends Shopware_Controllers_Backe
 					if($payName == 'ivb2b'){ $payName = 'iv'; $ivb2b = true; }
 					if($payName == 'san'){ $payName = 'iv'; $san = true; }
 					if($payName == 'ivpd'){ $payName = 'iv'; $ivpd = true; }
-
+					
 					switch($payName){
 						case 'cc':
 						case 'dc':
@@ -522,6 +523,14 @@ class Shopware_Controllers_Backend_BackendHgw extends Shopware_Controllers_Backe
 								$btns['rf']['trans'][] = $this->storeTrans($value, $payName, $payInfo);
 							}
 							break;
+                        case 'eps':
+                            if($payInfo['payType'] == 'rc'){
+                                $btns['rf']['active'] = 'true';
+
+                                if(!isset($maxRf)){	$maxRf = $value['PRESENTATION_AMOUNT']; }
+                                $btns['rf']['trans'][] = $this->storeTrans($value, $payName, $payInfo);
+                            }
+                            break;
 						case 'bs':
 						case 'iv':
 						    if($iv){
