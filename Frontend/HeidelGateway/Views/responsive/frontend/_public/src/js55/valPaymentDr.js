@@ -1321,7 +1321,7 @@ function valInvoiceB2b() {
     // checking depending registered fields
     // if($('.newreg_ivb2b #heidelB2bCompanyRegistered :checked').val()== "REGISTERED"){
     if($('.newreg_ivb2b input:checked').val()== "REGISTERED"){
-        // checking Company Commercial registernuimber
+        // checking Company Commercial registernumber
         var heidelb2bCompanyRegisterNr = $('.newreg_ivb2b #heidelb2bCompanyRegisterNr').val();
         if(heidelb2bCompanyRegisterNr == '' || heidelb2bCompanyRegisterNr == "undefined"){
             $('.newreg_ivb2b #heidelb2bCompanyRegisterNr').prop('class','has--error');
