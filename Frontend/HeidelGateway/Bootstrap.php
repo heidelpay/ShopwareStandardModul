@@ -3584,7 +3584,9 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 			if($pm == 'hpr' || $pm == 'hps') {$pm = 'HP';}
 			$ppd_config['PAYMENT.METHOD'] = $pm;
 			$ppd_config['SHOP.TYPE'] = 'Shopware - '. Shopware()->Config()->Version;
+			$ppd_config['CRITERION.SHOP.TYPE'] = 'Shopware - '. Shopware()->Config()->Version;
 			$ppd_config['SHOPMODULE.VERSION'] = $this->moduleType ." ". $this->getVersion();
+			$ppd_config['CRITERION.SHOPMODULE.VERSION'] = $this->moduleType ." ". $this->getVersion();
 
 			return $ppd_config;
 

@@ -3636,8 +3636,12 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                     $params['CRITERION.SHIPPINGHASH'] = self::hgw()->createShippingHash($userForShippingHash, substr($params['PAYMENT.CODE'], 0,2));
                 }
             }
-            if(array_key_exists('SHOP.TYPE',$config)) $params['SHOP.TYPE'] = $config['SHOP.TYPE'];
+
+            array_key_exists('SHOP.TYPE',$config) ? $params['SHOP.TYPE'] = $config['SHOP.TYPE'] : $params['SHOP.TYPE'] = "Shopware ".Shopware()->Config()->get('Version');
+            array_key_exists('CRITERION.SHOP.TYPE',$config) ? $params['CRITERION.SHOP.TYPE'] = $config['CRITERION.SHOP.TYPE'] : $params['CRITERION.SHOP.TYPE'] = "Shopware ".Shopware()->Config()->get('Version');
+
             if(array_key_exists('SHOPMODULE.VERSION',$config)) $params['SHOPMODULE.VERSION'] = $config['SHOPMODULE.VERSION'];
+            if(array_key_exists('SHOPMODULE.VERSION',$config)) $params['CRITERION.MODULE.VERSION'] = $config['SHOPMODULE.VERSION'];
 
             // frontend configuration  |  override FRONTEND.ENABLED if nessessary
             if(array_key_exists('FRONTEND.ENABLED',$frontend)){
