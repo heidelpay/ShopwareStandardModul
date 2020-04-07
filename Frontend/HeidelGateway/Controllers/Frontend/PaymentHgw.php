@@ -2150,7 +2150,7 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                         Shopware()->Session()->sOrderVariables['accountBrand'] 	= $this->getBrandName($parameters->ACCOUNT_BRAND);
                         break;
 
-                    case 'iv';
+                    case 'iv':
                         // setting Comments for frontend and Backend
                         Shopware()->Session()->sOrderVariables['prepaymentText'] = $comment;
                         // Santander saving birthdate
@@ -2247,7 +2247,7 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
 
                         Shopware()->Session()->sOrderVariables['prepaymentText'] = $comment;
 
-                        // sendeing Prepayment Email
+                        // sending Prepayment Email
                         if($this->Config()->HGW_PP_MAIL > 0){
                             $repl = array(
                                 '{AMOUNT}'						=> str_replace(".",",",$parameters->PRESENTATION_AMOUNT),
@@ -2739,10 +2739,12 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
 
             $this->hgw()->createTransactionsTable();
             try{
+                $duplicateEntry = false;
                 $this->hgw()->saveRes($xmlData);
             }catch(Exception $e){
                 // message 1062: Duplicate entry '%s' for key %d | https://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
                 if($e->getPrevious()->errorInfo['1'] == '1062'){
+                    $duplicateEntry = true;
                     // check if PUSH 'result', 'statuscode', 'return' or 'returncode' differ from DB entry and update, if so.
                     $sql = '
 						SELECT * FROM `s_plugin_hgw_transactions`
@@ -2752,7 +2754,6 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
 
                     $params = array($xmlData['IDENTIFICATION_TRANSACTIONID'], $xmlData['IDENTIFICATION_UNIQUEID']);
                     $data = Shopware()->Db()->fetchRow($sql, $params);
-
                     if(
                         ($data['result'] != $xmlData['PROCESSING_RESULT']) ||
                         ($data['statuscode'] != $xmlData['PROCESSING_STATUS_CODE']) ||
@@ -2794,7 +2795,7 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                     if(!empty($url)){
                         $this->hgw()->doRequest($xmlData, $url); // send response to shop via POST
                     }else{
-                        if($e->getPrevious()->errorInfo['1'] != '1062'){
+                        if(!$duplicateEntry){
                             $this->hgw()->Logging('rawnotifyAction | response_url missing');
                         }
                     }
@@ -2807,7 +2808,6 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                     }
                 }
             }
-
             header('HTTP/1.1 200 OK');
             $this->View()->MES = 'OK';
         }catch(Exception $e){
@@ -4154,7 +4154,7 @@ $params['CRITERION.SHOPWARESESSION'] = Shopware()->Session()->get('sessionId');
                 // Casting null values to empty strings to fulfill the restrictions of the s_order_billingaddress table
                 $billingAddress = [
                     'id'                        => !empty($customerDbResult[0]['customer']['billing']['id'])          ? $customerDbResult[0]['customer']['billing']['id'] : ' ',
-                    'id'                        => !empty($customerDbResult[0]['customer']['billing']['customerId'])  ? $customerDbResult[0]['customer']['billing']['customerId'] : ' ',
+                    'customerId'                => !empty($customerDbResult[0]['customer']['billing']['customerId'])  ? $customerDbResult[0]['customer']['billing']['customerId'] : ' ',
                     'company'                   => !empty($customerDbResult[0]['customer']['billing']['company'])     ? $customerDbResult[0]['customer']['billing']['company'] : ' ',
                     'department'                => !empty($customerDbResult[0]['customer']['billing']['department'])  ? $customerDbResult[0]['customer']['billing']['department'] : ' ',
                     'title'                     => !empty($customerDbResult[0]['customer']['billing']['title'])       ? $customerDbResult[0]['customer']['billing']['title'] : ' ',
