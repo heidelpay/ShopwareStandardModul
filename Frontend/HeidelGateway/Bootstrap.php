@@ -994,10 +994,10 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                     $this->logError($msg,$e);
                 }
             // Compatibility for SW 5.6
-            case '19.08.21':
             // Fix for no additional E-Mail for invoice B2B is sent after an order
             // Feature setting article in stock in case of an order without session
             // Fix for redirect after saving registered paymentdata in savePaymentAction
+            case '19.08.21':
             case '19.09.16':
             case '19.10.31':
                 try{
