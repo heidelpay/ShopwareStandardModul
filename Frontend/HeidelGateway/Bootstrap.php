@@ -28,7 +28,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 	 * @return string version number
 	 */
 	public function getVersion(){
-		return '20.03.10';
+		return '20.04.08';
 	}
 
 	/**
@@ -1010,8 +1010,13 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
             // Fix for a php-fatal exception could be thrown in case of incoming pushes "Call to a member function getPrevious() on null"
             // Fix for Mobile-browsers with Card-transactions
             // Fix for PayPal registrations
+            // Fix for B2B-invoice form in JS
+            // added params for evaluation
+            // added EventHook in convertOrder to get notified after convertOrder has finshed
+            // activated refunds for eps payment method in backend
+            // Bugfix for EPS-Connector issues
             case '20.01.15':
-            case '20.03.10':
+            case '20.04.08':
                 try{
                     $msg .= '* update 20.03.10<br />';
                 } catch (Exception $e){

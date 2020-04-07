@@ -1292,6 +1292,10 @@ function valInvoiceB2b() {
     $('.newreg_ivb2b #heidelb2bCompanyRegisterNr').removeClass('has--error');
     $('.newreg_ivb2b #heidelb2bExePhone').removeClass('has--error');
     $('.newreg_ivb2b #heidelb2bCompanyUstNr').removeClass('has--error');
+    $('.newreg_ivb2b [name ="Date_Day"]').removeClass('has--error');
+    $('.newreg_ivb2b [name ="Date_Month"]').removeClass('has--error');
+    $('.newreg_ivb2b [name ="Date_Year"]').removeClass('has--error');
+    $('.js--fancy-select.select-field').removeClass('has--error');
 
     // checking Company name
     var heidelCompanyName = $('.newreg_ivb2b #heidelb2bCompanyName').val();
