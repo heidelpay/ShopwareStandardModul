@@ -11,23 +11,11 @@ document.asyncReady(function () {
             if (orgLink == 'undefined') {
                 var orglink = jQuery('form[name="shippingPaymentForm"]').attr('action');
             }
+            
             if (
-                (window.location.pathname.toLowerCase().indexOf('shippingpayment') == '-1')
-                ||(window.location.pathname.toLowerCase().indexOf('zahlungsart-und-versand') == '-1')
+                (window.location.pathname.toLowerCase().indexOf('shippingpayment') > '0')
+                ||(window.location.pathname.toLowerCase().indexOf('zahlungsart-und-versand') > '0')
                 ) {
-                // change checked option
-                jQuery('.register--payment').click(function () {
-                    // change form action
-                    var checkedOpt = jQuery('.register--payment input:radio:checked').attr('class');
-                    changeUrl(checkedOpt, orgLink);
-                });
-                jQuery('.hgw_dd').click(function () {
-                    // change form action
-                    var checkedOpt = "hgw_dd";
-                    changeUrl(checkedOpt, orgLink);
-                });
-
-            } else {
                 var clicked = '';
                 $(this).click(function (e) {
                     clicked = e.target.className;
@@ -35,8 +23,7 @@ document.asyncReady(function () {
                 jQuery('.payment--method-list').click(function () {
                     // change form action
                     var checkedOpt = jQuery('.payment--method input:radio:checked').attr('class');
-                    changeUrl(checkedOpt, orgLink);
-
+                    // changeUrl(checkedOpt, orgLink);
                 });
                 // add validation for form
                 jQuery('form.payment').attr('onSubmit', 'return valShippingPaymentForm();');
@@ -109,22 +96,37 @@ document.asyncReady(function () {
                                 var checkedOpt = jQuery('.payment--method-list input:radio:checked').attr('class');
                                 $('input[class*="reues"]:checkbox, input[name*="ACCOUNT"], select[name*="ACCOUNT"], input[name*="CONTACT"]').click(function () {
                                     // change form action
-                                    changeUrl(checkedOpt, orgLink);
+                                    // changeUrl(checkedOpt, orgLink);
                                 });
                                 if (checkedOpt.indexOf('papg') != '-1') {
                                     // change form action
-                                    changeUrl(checkedOpt, orgLink);
+                                    // changeUrl(checkedOpt, orgLink);
                                 }
 
                                 if (checkedOpt.indexOf('san') != '-1') {
                                     // change form action
-                                    changeUrl(checkedOpt, orgLink);
+                                    // changeUrl(checkedOpt, orgLink);
                                 }
                             });
                         });
                     }
                 });
+
+
+
+            } else {
+
+                // change checked option
+                jQuery('.register--payment').click(function () {
+                    // change form action
+                    var checkedOpt = jQuery('.register--payment input:radio:checked').attr('class');
+                    // changeUrl(checkedOpt, orgLink);
+                });
+
+                // // add validation for form
+                // jQuery('form#shippingPaymentForm').attr('onSubmit', 'return valShippingPaymentForm();');
             }
+
             // case to set or remove required attribute for payolution checkbos
             var paymentMethod = $('input:radio:checked').attr('class');
             if(paymentMethod != undefined) {
@@ -264,18 +266,20 @@ document.asyncReady(function () {
                 if (pm.indexOf("hgw_hps") != -1){
                     var errorsHps = new Array();
                     errorsHps = valSantanderHP();
-                    if(errorsHps.length > 0){
+                    if(errorsHps != undefined) {
+                        if(errorsHps.length > 0){
 
-                        jQuery('#payment .alert .alert--content ul li').remove();
+                            jQuery('#payment .alert .alert--content ul li').remove();
 
-                        jQuery('#payment .alert .alert--content ul').append('<li class="list--entry">'+jQuery('.msg_fill').html()+'</li>');
-                        jQuery.each(errorsHps, function(key, value){
-                            jQuery('.alert--content ul').append('<li class="list--entry">'+jQuery(value).html()+'</li>');
-                        });
+                            jQuery('#payment .alert .alert--content ul').append('<li class="list--entry">'+jQuery('.msg_fill').html()+'</li>');
+                            jQuery.each(errorsHps, function(key, value){
+                                jQuery('.alert--content ul').append('<li class="list--entry">'+jQuery(value).html()+'</li>');
+                            });
 
-                        jQuery('.alert').removeClass("is--hidden");
-                        jQuery('html, body').animate({scrollTop: 0}, 0);
-                        return false;
+                            jQuery('.alert').removeClass("is--hidden");
+                            jQuery('html, body').animate({scrollTop: 0}, 0);
+                            return false;
+                        }
                     }
                 }
             } else {
@@ -470,8 +474,6 @@ document.asyncReady(function () {
                 var birthMonth = jQuery(".newreg_dd [name = 'DateDD_Month']").val();
                 var birthYear = jQuery(".newreg_dd [name = 'DateDD_Year']").val();
                 jQuery('#birthdate_dd').val(birthYear + '-' + birthMonth + '-' + birthDay);
-                // change form action
-                changeUrl('hgw_dd', orgLink);
             });
 
 
@@ -639,6 +641,10 @@ function valForm() {
                                 jQuery('#birthdate_dd').val(birthYear + '-' + birthMonth + '-' + birthDay);
 
                                 errors = valDirectDebitSecured(errors);
+                            }
+                            // change Form action
+                            if(errors[0] === undefined){
+                                jQuery('form.payment').attr('action', formUrl['dd']);
                             }
 
                         }
@@ -815,6 +821,9 @@ function valShippingPaymentForm() {
             switch (pm.toLocaleLowerCase()) {
                 case "dd":
                     var errors = valInputDdIban(jQuery('.newreg_' + pm + ' #iban').val(), pm);
+                    if(errors[0] === undefined){
+                        jQuery('form.payment').attr('action', formUrl['dd']);
+                    }
                     break;
 
                 case "papg":

@@ -1,5 +1,6 @@
 {block name="hp_payment_va"}
 	<div class="{$classname}" style='background-color: transparent; border: 0;'>
+		<input type="hidden" name="heidelFormUrlPayPal" value="{$formUrl.$pm}">
 		{if isset($regData.$pm)}
 			{assign var="hasReg{$pm}" value=true}			
 			<div class="reuse_{$pm}" {if {$hasReg{$pm}}} style="display: block;" {/if}>

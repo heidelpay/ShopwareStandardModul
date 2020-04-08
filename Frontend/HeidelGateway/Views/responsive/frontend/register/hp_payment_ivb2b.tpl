@@ -1,5 +1,4 @@
 {block name="hp_payment_papg"}
-	{*{debug}*}
 	<div class="{$grid} {$classname}" style='background-color: transparent;'>
 		<div class="newreg_{$pm}" id="payType" style="width: 30rem;">
 			<div>

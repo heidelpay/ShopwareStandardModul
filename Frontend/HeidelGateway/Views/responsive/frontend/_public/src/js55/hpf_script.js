@@ -1,4 +1,5 @@
 document.asyncReady(function() {
+
     var hasListener = [];
     hasListener['dc'] = false;
     hasListener['cc'] = false;

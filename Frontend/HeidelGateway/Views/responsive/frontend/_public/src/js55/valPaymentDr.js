@@ -1,7 +1,6 @@
-// $(document).ready(function(){
 $(function() {
     if(swVersion.substring(0,3) >= '5.2'){
-        // var token = jQuery('input[name="__csrf_token"]').val();
+        var token = jQuery('input[name="__csrf_token"]').val();
         // if (jQuery('input[name="__csrf_token"]').length > 0 && jQuery('input[name="__csrf_token"]').val() != 0) {
 
             var orgLink = jQuery('form.payment').attr('action');
@@ -11,24 +10,9 @@ $(function() {
                 // save original form action
                 var orgLink = jQuery('form.payment').attr('action');
                 if(
-                    (window.location.pathname.toLowerCase().indexOf('shippingpayment') == '-1')
-                    ||(window.location.pathname.toLowerCase().indexOf('zahlungsart-und-versand') == '-1')
+                    (window.location.pathname.toLowerCase().indexOf('shippingpayment')> '0')
+                    ||(window.location.pathname.toLowerCase().indexOf('zahlungsart-und-versand') > '0')
                 ){
-                    $(document).reuse();
-                    // change checked option
-                    jQuery('.register--payment').click(function(){
-                        // change form action
-                        var checkedOpt = jQuery('.register--payment input:radio:checked').attr('class');
-                        changeUrl(checkedOpt, orgLink);
-                    });
-
-                    jQuery('.payment--method .hgw_dd').click(function(){
-                        // change form action
-                        var checkedOpt = jQuery('.register--payment input:radio:checked').attr('class');
-                        changeUrl(checkedOpt, orgLink);
-                    });
-
-                }else{
                     var clicked = '';
                     $(this).click(function(e){
                         clicked = e.target.className;
@@ -37,7 +21,7 @@ $(function() {
                     jQuery('.payment--method-list').click(function(){
                         // change form action
                         var checkedOpt = jQuery('.payment--method input:radio:checked').attr('class');
-                        changeUrl(checkedOpt, orgLink);
+                        // changeUrl(checkedOpt, orgLink);
 
                     });
                     // add validation for form
@@ -69,7 +53,7 @@ $(function() {
                     $(document).ajaxComplete(function(event, xhr, settings){
                         // fix for missing csrf-Token
                         if(swVersion >= '5.2'){
-                            if ($(" shippingPaymentForm input[name='__csrf_token']").length == 0) {
+                            if ($("#shippingPaymentForm input[name='__csrf_token']").length == 0) {
                                 $('.shipping-payment--information').append('<input type="hidden" name="__csrf_token" value="'+token+'">');
                             }
                         }
@@ -111,20 +95,28 @@ $(function() {
                                     var checkedOpt = jQuery('.payment--method-list input:radio:checked').attr('class');
                                     $('input[class*="reues"]:checkbox, input[name*="ACCOUNT"], select[name*="ACCOUNT"], input[name*="CONTACT"]').click(function(){
                                         // change form action
-                                        changeUrl(checkedOpt, orgLink);
+                                        // changeUrl(checkedOpt, orgLink);
                                     });
                                     if(checkedOpt.indexOf('papg') != '-1'){
                                         // change form action
-                                        changeUrl(checkedOpt, orgLink);
+                                        // changeUrl(checkedOpt, orgLink);
                                     }
 
                                     if(checkedOpt.indexOf('san') != '-1'){
                                         // change form action
-                                        changeUrl(checkedOpt, orgLink);
+                                        // changeUrl(checkedOpt, orgLink);
                                     }
                                 });
                             });
                         }
+                    });
+                } else {
+                    $(document).reuse();
+                    // change checked option
+                    jQuery('.register--payment').click(function(){
+                        // change form action
+                        var checkedOpt = jQuery('.register--payment input:radio:checked').attr('class');
+                        // changeUrl(checkedOpt, orgLink);
                     });
                 }
 
@@ -256,7 +248,7 @@ $(function() {
                             errorsDD = valDirectDebitSecured(errorsDD);
                         }
 
-                        if((jQuery('.'+"hgw_dd"+'  .has--error').length > 0)){
+                        if((jQuery('.'+"hgw_dd"+' .has--error').length > 0)){
                             jQuery('#payment .alert .alert--content ul li').remove();
 
                             jQuery('#payment .alert .alert--content ul').append('<li class="list--entry">'+jQuery('.msg_fill').html()+'</li>');
@@ -270,7 +262,7 @@ $(function() {
                             return false;
                         }
                         // change form action
-                        changeUrl('hgw_dd', orgLink);
+                        // changeUrl('hgw_dd', orgLink);
                     }
 
                     if (pm.indexOf("hgw_hps") != -1){
@@ -335,11 +327,6 @@ $(function() {
 
                         // to remove unused inputs for IVB2B
                         if(pm == "ivb2b"){
-                            // if(jQuery('.heidelB2bRegistered').is(':visible')){
-                            //     jQuery('.heidelB2bNotRegistered').remove();
-                            // } else {
-                            //     jQuery('.heidelB2bRegistered').remove();
-                            // }
                             if(jQuery('.heidelB2bRegistered').is(':visible')){
                                 // jQuery('.heidelB2bNotRegistered').remove();
                                 jQuery('.heidelB2bNotRegistered :input').attr("disabled","disabled");
@@ -375,7 +362,6 @@ $(function() {
                             }
                         }
                     }
-
                     if(typeof pm == 'undefined')
                     {
                         var heidelCssClasses = jQuery(".payment_method").attr('class');
@@ -492,7 +478,7 @@ $(function() {
 
                     jQuery('#birthdate_dd').val(birthYear+'-'+birthMonth+'-'+birthDay);
                     // change form action
-                    changeUrl('hgw_dd', orgLink);
+                    // changeUrl('hgw_dd', orgLink);
                 });
 
                 if(jQuery('.newreg_dd')) {
@@ -635,38 +621,6 @@ function hgwToggleReuse (pm)
     jQuery('.newreg' + pm).toggle(500);
 }
 
-// CHANGE FORM URL
-// function changeUrl(checkedOpt, orgLink) {
-//     if (checkedOpt != undefined) {
-//         var prefix = 'hgw_';
-//         var checkedOptPos = checkedOpt.indexOf(prefix);
-//
-//         if (checkedOptPos >= 0) {
-//             var pm = checkedOpt.substr(checkedOptPos + prefix.length);
-//
-//             if (pm == 'pay') { pm = 'va';}
-//
-//             if ((jQuery('.reues_' + pm).length > 0) && !(jQuery('.reues_' + pm).is(':checked'))) {
-//                 var reuse = true;
-//             } else {
-//                 var reuse = false;
-//             }
-//             if (formUrl != null) {
-//                 if ((formUrl[pm] == undefined) || (formUrl[pm] == '') || (reuse) || (pm == 'cc') || (pm == 'dc')) {
-//                     jQuery('form.payment').attr('action', orgLink);
-//                 } else {
-//                     jQuery('form.payment').attr('action', formUrl[pm]);
-//                 }
-//             }
-//         } else {
-//             jQuery('form.payment').attr('action', orgLink);
-//         }
-//     } else {
-//         jQuery('form.payment').attr('action', orgLink);
-//     }
-//
-// }
-
 // VALIDATE FORM
 function valForm() {
     if (jQuery('.register--payment input:radio:checked').length != 0) {
@@ -702,8 +656,12 @@ function valForm() {
 
                                 jQuery('#birthdate_dd').val = birthYear + '-' + birthMonth + '-' + birthDay;
 
-                                errors = valDirectDebitSecured(errors);
+                                var errors = valDirectDebitSecured(errors);
                             }
+                            if(errors[0] === undefined){
+                                jQuery('form.payment').attr('action', formUrl['dd']);
+                            }
+
                         }
 
                         if (pm == 'papg') {
@@ -749,16 +707,10 @@ function valForm() {
                     return false;
                 } else {
                     // disable all other input fields
-                    // jQuery('.register--payment input').attr('disabled', 'disabled');
-                    // jQuery('.register--payment select').attr('disabled', 'disabled');
-                    // jQuery('.register--payment input:radio:checked').parents('.payment--method').find('input').removeAttr('disabled');
-                    // jQuery('.register--payment input:radio:checked').parents('.payment--method').find('select').removeAttr('disabled');
-
-                    jQuery('.payment--method .block input').attr('disabled', 'disabled');
-                    jQuery('.payment--method .block select').attr('disabled', 'disabled');
-                    jQuery("input:radio").removeAttr('disabled');
-                    jQuery('.payment--method .block input:radio:checked').parents('.payment--method').find('input').removeAttr('disabled');
-                    jQuery('.payment--method .block input:radio:checked').parents('.payment--method').find('select').removeAttr('disabled');
+                    jQuery('.register--payment input').attr('disabled', 'disabled');
+                    jQuery('.register--payment select').attr('disabled', 'disabled');
+                    jQuery('.register--payment input:radio:checked').parents('.payment--method').find('input').removeAttr('disabled');
+                    jQuery('.register--payment input:radio:checked').parents('.payment--method').find('select').removeAttr('disabled');
                 }
             }
         }
@@ -778,14 +730,6 @@ function valGatewayForm() {
     checkedOpt = jQuery('#payment .payment_method').find('div').attr('class');
     var pm = checkedOpt.substr(checkedOpt.indexOf('_') + 1);
 
-    // set 'error' to empty inputs
-    // jQuery('.' + checkedOpt).find('input').each(function () {
-    //     if (jQuery(this).val() == '') {
-    //         jQuery(this).addClass('has--error');
-    //     } else {
-    //         jQuery(this).removeClass('has--error');
-    //     }
-    // });
 
     switch (pm.toLocaleLowerCase()) {
         case 'dd':
@@ -836,59 +780,23 @@ function valGatewayForm() {
             }
         break;
         case "ivb2b":
-            if(jQuery('.heidelB2bRegistered').is(':visible')){
-                // jQuery('.heidelB2bNotRegistered').remove();
-                jQuery('.heidelB2bNotRegistered :input').attr("disabled","disabled");
-                jQuery('.heidelB2bRegistered :input').removeAttr("disabled");
-            } else {
-                // jQuery('.heidelB2bRegistered').remove();
-                jQuery('.heidelB2bRegistered :input').attr("disabled","disabled");
-                jQuery('.heidelB2bNotRegistered :input').removeAttr("disabled");
-            }
             var errors = valInvoiceB2b();
+            if(errors.length < 1){
+                if(jQuery('.heidelB2bRegistered').is(':visible')){
+                    // jQuery('.heidelB2bNotRegistered').remove();
+                    jQuery('.heidelB2bNotRegistered :input').attr("disabled","disabled");
+                    jQuery('.heidelB2bRegistered :input').removeAttr("disabled");
+                } else {
+                    // jQuery('.heidelB2bRegistered').remove();
+                    jQuery('.heidelB2bRegistered :input').attr("disabled","disabled");
+                    jQuery('.heidelB2bNotRegistered :input').removeAttr("disabled");
+                }
+            }
+
+
         break;
 
     }
-
-
-
-    // if (pm == 'dd') {
-    //     var errors = valInputDdIban(jQuery('.' + checkedOpt + '  #iban').val(), pm);
-    //
-    //     if (jQuery('#salutation').is(':visible')) {
-    //         // getting Values from input fields
-    //         var salutation = jQuery('#salutation').val();
-    //         var birthDay = jQuery('select[name=Date_Day]').val();
-    //         var birthMonth = jQuery('select[name=Date_Month]').val();
-    //         var birthYear = jQuery('select[name=Date_Year]').val();
-    //
-    //         jQuery('#birthdate_dd').val(birthYear + '-' + birthMonth + '-' + birthDay);
-    //
-    //         errors = valDirectDebitSecured(errors);
-    //     }
-    // } else if (pm == 'gir') {
-    //     var errors = valInputDdIban(jQuery('.' + checkedOpt + '  #iban').val(), pm);
-    // } else if (pm == "papg"){
-    //     var errorsPapg = valInvoiceSec();
-    //
-    //     if((jQuery('.newreg_papg .has--error'))){
-    //         if(jQuery.isEmptyObject(errorsPapg) == false){
-    //             jQuery('#payment .alert .alert--content ul').append('<li class="list--entry">'+jQuery('.msg_fill').html()+'</li>');
-    //             jQuery.each(errorsPapg, function(key, value){
-    //                 jQuery('.alert--content ul').append('<li class="list--entry">'+jQuery(value).html()+'</li>');
-    //             });
-    //
-    //             jQuery('.alert').removeClass("is--hidden");
-    //             jQuery('.alert').show();
-    //             jQuery('html, body').animate({scrollTop: 0}, 0);
-    //
-    //             return false;
-    //         }
-    //
-    //     } else {
-    //         jQuery('#payment .alert .is--error .is--rounded div').remove();
-    //     }
-    // }
 
     if ((jQuery('.' + checkedOpt + '  .has--error').length > 0)) {
         jQuery('#payment .alert .alert--content ul li').remove();
@@ -910,12 +818,8 @@ function valShippingPaymentForm() {
     var checkedOpt = jQuery('.payment--method-list input:radio:checked').attr('class');
     var pm = checkedOpt.substr(checkedOpt.indexOf('hgw_') + 4);
     // disable all other input fields
-    // jQuery('.payment--method .block input').attr('disabled', 'disabled');
-    // jQuery('.payment--method .block select').attr('disabled', 'disabled');
     jQuery('div.payment--method.block.method :input').attr('disabled', 'disabled');
     jQuery("input:radio").removeAttr('disabled');
-    // jQuery(".hgw_"+pm).parents('.payment--method .block').find('input').removeAttr('disabled');
-    // jQuery(".hgw_"+pm).parents('.payment--method .block').find('select').removeAttr('disabled');
 
     jQuery("input.hgw_"+pm).parent().parent('div.payment--method.block.method').find('input').removeAttr('disabled');
     jQuery("input.hgw_"+pm).parent().parent('div.payment--method.block.method').find('select').removeAttr('disabled');
@@ -934,6 +838,9 @@ function valShippingPaymentForm() {
 
             if (pm == 'dd') {
                 var errors = valInputDdIban(jQuery('.newreg_' + pm + ' #iban').val(), pm);
+                if(errors[0] === undefined){
+                    jQuery('form.payment').attr('action', formUrl['dd']);
+                }
             }
 
             if (pm == 'papg') {
@@ -1370,6 +1277,26 @@ function valInvoiceSec() {
 function valInvoiceB2b() {
     var errors = new Array();
     var i = 0;
+    //removing all errors
+    $('.newreg_ivb2b #heidelb2bCompanyUstNr').removeClass('has--error');
+    $('.newreg_ivb2b #B2Bsalutation').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bPreName').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bLastName').removeClass('has--error');
+    $('.newreg_ivb2b #birthdate_ivb2b').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bEmail').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bExePhone').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bExeStreet').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bExeZip').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bExeCity').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bExeCountry').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bCompanyRegisterNr').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bExePhone').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bCompanyUstNr').removeClass('has--error');
+    $('.newreg_ivb2b [name ="Date_Day"]').removeClass('has--error');
+    $('.newreg_ivb2b [name ="Date_Month"]').removeClass('has--error');
+    $('.newreg_ivb2b [name ="Date_Year"]').removeClass('has--error');
+    $('.js--fancy-select.select-field').removeClass('has--error');
+
     // checking Company name
     var heidelCompanyName = $('.newreg_ivb2b #heidelb2bCompanyName').val();
     if(heidelCompanyName == '' || heidelCompanyName == "undefined"){
@@ -1398,7 +1325,7 @@ function valInvoiceB2b() {
     // checking depending registered fields
     // if($('.newreg_ivb2b #heidelB2bCompanyRegistered :checked').val()== "REGISTERED"){
     if($('.newreg_ivb2b input:checked').val()== "REGISTERED"){
-        // checking Company Commercial registernuimber
+        // checking Company Commercial registernumber
         var heidelb2bCompanyRegisterNr = $('.newreg_ivb2b #heidelb2bCompanyRegisterNr').val();
         if(heidelb2bCompanyRegisterNr == '' || heidelb2bCompanyRegisterNr == "undefined"){
             $('.newreg_ivb2b #heidelb2bCompanyRegisterNr').prop('class','has--error');
