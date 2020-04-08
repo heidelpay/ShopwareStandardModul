@@ -780,16 +780,20 @@ function valGatewayForm() {
             }
         break;
         case "ivb2b":
-            if(jQuery('.heidelB2bRegistered').is(':visible')){
-                // jQuery('.heidelB2bNotRegistered').remove();
-                jQuery('.heidelB2bNotRegistered :input').attr("disabled","disabled");
-                jQuery('.heidelB2bRegistered :input').removeAttr("disabled");
-            } else {
-                // jQuery('.heidelB2bRegistered').remove();
-                jQuery('.heidelB2bRegistered :input').attr("disabled","disabled");
-                jQuery('.heidelB2bNotRegistered :input').removeAttr("disabled");
-            }
             var errors = valInvoiceB2b();
+            if(errors.length < 1){
+                if(jQuery('.heidelB2bRegistered').is(':visible')){
+                    // jQuery('.heidelB2bNotRegistered').remove();
+                    jQuery('.heidelB2bNotRegistered :input').attr("disabled","disabled");
+                    jQuery('.heidelB2bRegistered :input').removeAttr("disabled");
+                } else {
+                    // jQuery('.heidelB2bRegistered').remove();
+                    jQuery('.heidelB2bRegistered :input').attr("disabled","disabled");
+                    jQuery('.heidelB2bNotRegistered :input').removeAttr("disabled");
+                }
+            }
+
+
         break;
 
     }
@@ -1273,6 +1277,26 @@ function valInvoiceSec() {
 function valInvoiceB2b() {
     var errors = new Array();
     var i = 0;
+    //removing all errors
+    $('.newreg_ivb2b #heidelb2bCompanyUstNr').removeClass('has--error');
+    $('.newreg_ivb2b #B2Bsalutation').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bPreName').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bLastName').removeClass('has--error');
+    $('.newreg_ivb2b #birthdate_ivb2b').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bEmail').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bExePhone').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bExeStreet').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bExeZip').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bExeCity').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bExeCountry').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bCompanyRegisterNr').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bExePhone').removeClass('has--error');
+    $('.newreg_ivb2b #heidelb2bCompanyUstNr').removeClass('has--error');
+    $('.newreg_ivb2b [name ="Date_Day"]').removeClass('has--error');
+    $('.newreg_ivb2b [name ="Date_Month"]').removeClass('has--error');
+    $('.newreg_ivb2b [name ="Date_Year"]').removeClass('has--error');
+    $('.js--fancy-select.select-field').removeClass('has--error');
+
     // checking Company name
     var heidelCompanyName = $('.newreg_ivb2b #heidelb2bCompanyName').val();
     if(heidelCompanyName == '' || heidelCompanyName == "undefined"){
@@ -1301,7 +1325,7 @@ function valInvoiceB2b() {
     // checking depending registered fields
     // if($('.newreg_ivb2b #heidelB2bCompanyRegistered :checked').val()== "REGISTERED"){
     if($('.newreg_ivb2b input:checked').val()== "REGISTERED"){
-        // checking Company Commercial registernuimber
+        // checking Company Commercial registernumber
         var heidelb2bCompanyRegisterNr = $('.newreg_ivb2b #heidelb2bCompanyRegisterNr').val();
         if(heidelb2bCompanyRegisterNr == '' || heidelb2bCompanyRegisterNr == "undefined"){
             $('.newreg_ivb2b #heidelb2bCompanyRegisterNr').prop('class','has--error');

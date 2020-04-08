@@ -20,6 +20,11 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
     var $httpstatus = '';
 
     /**
+     * @var Enlight_Event_EventManager
+     */
+    protected $eventManager;
+
+    /**
      * Index action method
      */
     public function indexAction(){
@@ -145,10 +150,13 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                     // Registrierung ist vorhanden
                     $hasReg = true;
                     $reg = $this->hgw()->getRegData($user['additional']['user']['id'], $activePayment);
-
                     $shippingHash = $this->createShippingHash($user, $activePayment);
                     $last = mktime(23,59,00,$reg['expMonth']+1,0,$reg['expYear']); // timestamp: last day of registration month
-                    if(!empty($reg) && ($reg['uid'] != '') && ((($reg['expMonth'] == '0') && ($reg['expYear'] == '0')) || ($last > time())) && (($reg['shippingHash'] == $shippingHash) || ($this->Config()->HGW_SHIPPINGHASH == 1))){
+                    if(
+                        !empty($reg) && ($reg['uid'] != '') && ((($reg['expMonth'] == '0') && ($reg['expYear'] == '0')) ||
+                        ($last > time())) && (($reg['shippingHash'] == $shippingHash) ||
+                        ($this->Config()->HGW_SHIPPINGHASH == 1))
+                    ){
                         $ppd_config = $this->hgw()->ppd_config($this->Config()->$booking, $activePayment, $reg['uid'], true);
                         $ppd_user = $this->hgw()->ppd_user(NULL, $activePayment);
 
@@ -229,7 +237,6 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
 
                         $getFormUrl = $this->getFormUrl($activePayment, $this->Config()->$booking, $user['additional']['user']['id'], $tempID, $uid, $basket, $ppd_crit);
                         unset(Shopware()->Session()->HPGateway);
-
                         $cardBrands[$activePayment]	= json_decode($getFormUrl['CONFIG_BRANDS'], true);
                         $bankCountry[$activePayment]	= json_decode($getFormUrl['CONFIG_BANKCOUNTRY'], true);
 
@@ -1254,7 +1261,7 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                         }
                         break;
                     default:
-                        ;
+                        $saved = $saved = $this->saveRegData($resp, '', '');
                         break;
                 }
 
@@ -1297,20 +1304,24 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                         Shopware()->Session()->$token 	= $resp['__csrf_token'];
 
                         $this->Request()->setPost('sTarget',$resp['var_sTarget']);
-
                         $registrierteZahlart = $resp['var_Register'];
                         $this->Request()->setPost('register', $registrierteZahlart['payment']);
 
                         //Fallback case if target is not set
                         if(empty($resp['var_sTarget'])){$resp['var_sTarget'] = 'checkout';}
 
+//                        print Shopware()->Front()->Router()->assemble(array(
+//                            'forceSecure' 	=> 1,
+//                            'controller' 	=> 'PaymentHgw',
+//                            'action'		=> 'savePayment',
+//                            'sRegister' 	=> $registrierteZahlart['payment'],
+//                            'sTarget'		=> $resp['var_sTarget'],
+//                            'txnId'			=> $resp['IDENTIFICATION_TRANSACTIONID'],
+//                        ));
                         print Shopware()->Front()->Router()->assemble(array(
                             'forceSecure' 	=> 1,
-                            'controller' 	=> 'PaymentHgw',
-                            'action'		=> 'savePayment',
-                            'sRegister' 	=> $registrierteZahlart['payment'],
-                            'sTarget'		=> $resp['var_sTarget'],
-                            'txnId'			=> $resp['IDENTIFICATION_TRANSACTIONID'],
+                            'controller' 	=> 'checkout',
+                            'action'		=> 'confirm',
                         ));
                         return;
                         break;
@@ -1662,7 +1673,6 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
             $_SERVER['REQUEST_METHOD'] = 'GET';
             $this->Request()->setPost('isPost', 'true');
             $transaction = $this->getHgwTransactions($this->Request()->txnId);
-
             $token = json_decode($transaction['jsonresponse']);
 
             $tokenNameSession = 'X-CSRF-Token';
@@ -2059,6 +2069,7 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                         'IDENTIFICATION_SHORTID' => $parameters->IDENTIFICATION_SHORTID ,
                         'CRITERION_TEMPORDER'       => $parameters->CRITERION_TEMPORDER,
                         'CRITERION_USER_ID'       => $parameters->CRITERION_USER_ID,
+                        'PAYMENT_CODE'       => $parameters->PAYMENT_CODE,
                     ],21);
                     Shopware()->Container()->get('pluginlogger')->info("heidelpay successAction convertOrder created an order | Ordernumber: ".$return);
                 }
@@ -2071,6 +2082,7 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                         'IDENTIFICATION_SHORTID' => $parameters->IDENTIFICATION_SHORTID ,
                         'CRITERION_TEMPORDER'       => $parameters->CRITERION_TEMPORDER,
                         'CRITERION_USER_ID'       => $parameters->CRITERION_USER_ID,
+                        'PAYMENT_CODE'       => $parameters->PAYMENT_CODE,
                     ],21);
                     Shopware()->Container()->get('pluginlogger')->info("heidelpay successAction convertOrder 2nd try created an order | Ordernumber: ".$return);
                 }
@@ -2530,6 +2542,8 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
     public function addOrderInfos($transactionID, $params, $status=NULL){
         try{
             Shopware()->Models()->clear();
+
+            /** @var Shopware\Models\Order\Order $orderModel */
             $orderModel = Shopware()
                 ->Models()
                 ->getRepository('Shopware\Models\Order\Order')
@@ -2546,13 +2560,20 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
             {
                 $orderModel->setClearedDate(date('d.m.Y H:i:s'));
             }
-            // if internalComment is set, read old commment and add time stamp
-            $alterWert = $orderModel->getInternalComment();
-            if(!empty($params['internalcomment'])){
-                $params['internalcomment'] = date('d.m.Y H:i:s') . "\n" . $params['internalcomment'] . "\n \n" . $alterWert;
-            }else{
-                $params['internalcomment'] = $alterWert;
+
+            try {
+                // if internalComment is set, read old commment and add time stamp
+                $alterWert = $orderModel->getInternalComment();
+                if(!empty($params['internalcomment'])){
+                    $params['internalcomment'] = date('d.m.Y H:i:s') . "\n" . $params['internalcomment'] . "\n \n" . $alterWert;
+                }else{
+                    $params['internalcomment'] = $alterWert;
+                }
+            } catch (Exception $ex) {
+                Shopware()->Container()->get('pluginlogger')->error('addOrderInfos failed cannot write order comment | '.$ex->getMessage());
             }
+
+
 
             // mapping database -> model
             $orderMappings = array(
@@ -3467,6 +3488,8 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                     $type = (!array_key_exists('PAYMENT.TYPE',$config)) ? 'PA' : $config['PAYMENT.TYPE'];
                     $params['PAYMENT.CODE'] 		= "OT.".$type;
                     $params['FRONTEND.ENABLED'] 	= "true";
+                    $params['ACCOUNT.COUNTRY'] 	    = "AT";
+
                     // 					$params['ACCOUNT.BRAND'] 		= "EPS";
                     break;
                 /* postfinance */
@@ -3613,8 +3636,12 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
                     $params['CRITERION.SHIPPINGHASH'] = self::hgw()->createShippingHash($userForShippingHash, substr($params['PAYMENT.CODE'], 0,2));
                 }
             }
-            if(array_key_exists('SHOP.TYPE',$config)) $params['SHOP.TYPE'] = $config['SHOP.TYPE'];
+
+            array_key_exists('SHOP.TYPE',$config) ? $params['SHOP.TYPE'] = $config['SHOP.TYPE'] : $params['SHOP.TYPE'] = "Shopware ".Shopware()->Config()->get('Version');
+            array_key_exists('CRITERION.SHOP.TYPE',$config) ? $params['CRITERION.SHOP.TYPE'] = $config['CRITERION.SHOP.TYPE'] : $params['CRITERION.SHOP.TYPE'] = "Shopware ".Shopware()->Config()->get('Version');
+
             if(array_key_exists('SHOPMODULE.VERSION',$config)) $params['SHOPMODULE.VERSION'] = $config['SHOPMODULE.VERSION'];
+            if(array_key_exists('SHOPMODULE.VERSION',$config)) $params['CRITERION.MODULE.VERSION'] = $config['SHOPMODULE.VERSION'];
 
             // frontend configuration  |  override FRONTEND.ENABLED if nessessary
             if(array_key_exists('FRONTEND.ENABLED',$frontend)){
@@ -4054,7 +4081,6 @@ $params['CRITERION.SHOPWARESESSION'] = Shopware()->Session()->get('sessionId');
     {
         // Customermodel hat unter 5.1.6 noch keine Beziehung zu defaultShippingAddress oder defaultBillingAddress
         // daher musste funktion angepasst werden
-
         if(version_compare(Shopware()->Config()->version,"5.2.0","<")){
             try{
                 // Get user, shipping and billing
@@ -4519,15 +4545,36 @@ $params['CRITERION.SHOPWARESESSION'] = Shopware()->Session()->get('sessionId');
 
                     // to send a Status E-Mail to customer
                     // sending e-mail via $this->saveOrder() doesn't work
-                    $this->savePaymentStatus(
-                        $transactionData['IDENTIFICATION_TRANSACTIONID'],
-                        $transactionData['IDENTIFICATION_UNIQUEID'],
-                        12,
-                        true
-                    );
+                    if($transactionData['PAYMENT_CODE'] == "IV.PA"){
+                        $this->savePaymentStatus(
+                            $transactionData['IDENTIFICATION_TRANSACTIONID'],
+                            $transactionData['IDENTIFICATION_UNIQUEID'],
+                            21,
+                            true
+                        );
+                    } else {
+                        $this->savePaymentStatus(
+                            $transactionData['IDENTIFICATION_TRANSACTIONID'],
+                            $transactionData['IDENTIFICATION_UNIQUEID'],
+                            12,
+                            true
+                        );
+                    }
+
                     Shopware()->Container()->get('pluginlogger')->info("heidelpay convertOrder 4/4 Paymentstatus changed, E-Mail sent to customer, End of convertOrder for ordernumber: ".$newOrderNumber);
 
                     $this->View()->assign(['success' => true]);
+
+                    Shopware()->Container()->get('events')->notify(
+                        'HeidelGatewayEvent_Controller_convertOrderAction',
+                        [
+                            'orderNumber'   => $newOrderNumber,
+                            'transactionid' => $transactionData['IDENTIFICATION_TRANSACTIONID'],
+                            'heidelShortId' => $transactionData['IDENTIFICATION_SHORTID'],
+                            'userIdInShop'  => $transactionData['CRITERION_USER_ID']
+
+                        ]
+                    );
 
                     return $newOrderNumber;
                 }
@@ -4568,9 +4615,13 @@ $params['CRITERION.SHOPWARESESSION'] = Shopware()->Session()->get('sessionId');
      */
     private function getSwVersion()
     {
-        if (defined('Shopware::VERSION')) {
-            $swVersion = Shopware::VERSION;
-        } else {
+        if(!empty(Shopware()->Config()->version)){
+            $swVersion = Shopware()->Config()->version;
+        }
+//        if (defined('Shopware::VERSION')) {
+//            $swVersion = Shopware::VERSION;
+//        }
+        else {
             $swVersion = $this->container->get('config')->get('version');
         }
         return $swVersion;

@@ -560,7 +560,7 @@
 			{assign var='formTarget' value='payment_frame'}
 			<h2 class="headingbox_dark largesize">{s name='PaymentHeader' namespace='frontend/payment_heidelpay/gateway'}{/s}</h2>
 			<center>
-				<iframe name="payment_frame" id="payment_frame" width="500px" frameborder="0" border="0" src="{$PaymentUrl}" style="width: 450px; border: 0px solid #000;"></iframe>
+				<iframe style="width:100% max-width:310px" name="payment_frame" id="payment_frame" width="500px" frameborder="0" border="0" src="{$PaymentUrl}" style="width: 450px; border: 0px solid #000;"></iframe>
 			</center>
 			<div id="payment_loader" class="ajaxSlider" style="height: 100px; border: 0 none; display: none">
 				<div class="loader" style="width: 80px; margin-left: -50px;">{s name='PaymentInfoWait' namespace='frontend/payment_heidelpay/gateway'}{/s}</div>

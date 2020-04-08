@@ -89,28 +89,6 @@ document.asyncReady(function () {
                             });
                             // add validation for form
                             jQuery('form.payment').attr('onSubmit', 'return valShippingPaymentForm();');
-
-                            // just call changeUrl() after all animations are done
-                            $(document).promise().done(function () {
-                                document.asyncReady(function () {
-                                    // $(document).reuse();
-                                    // $(document).ibanCheck();
-                                    // var checkedOpt = jQuery('.payment--method-list input:radio:checked').attr('class');
-                                    // $('input[class*="reues"]:checkbox, input[name*="ACCOUNT"], select[name*="ACCOUNT"], input[name*="CONTACT"]').click(function () {
-                                    //     // change form action
-                                    //     // changeUrl(checkedOpt, orgLink);
-                                    // });
-                                    // if (checkedOpt.indexOf('papg') != '-1') {
-                                    //     // change form action
-                                    //     // changeUrl(checkedOpt, orgLink);
-                                    // }
-                                    //
-                                    // if (checkedOpt.indexOf('san') != '-1') {
-                                    //     // change form action
-                                    //     // changeUrl(checkedOpt, orgLink);
-                                    // }
-                                });
-                            });
                         }
                     });
                 } else {
@@ -120,12 +98,6 @@ document.asyncReady(function () {
                         var checkedOpt = jQuery('.register--payment input:radio:checked').attr('class');
                         // changeUrl(checkedOpt, orgLink);
                     });
-                    
-                    // jQuery('.hgw_dd').click(function () {
-                    //     // change form action
-                    //     var checkedOpt = "hgw_dd";
-                    //     changeUrl(checkedOpt, orgLink);
-                    // });
                 }
 
             // case to set or remove required attribute for payolution checkbos
@@ -760,14 +732,16 @@ function valGatewayForm() {
             }
             break;
         case 'ivb2b':
-            if(jQuery('.heidelB2bRegistered').is(':visible')){
-                jQuery('.heidelB2bNotRegistered').remove();
-            } else {
-                jQuery('.heidelB2bRegistered').remove();
-            }
             var errors = valInvoiceB2b();
+            // remove unused Inputs in case of no wrong entries
+            if(errors.length < 1){
+                if(jQuery('.heidelB2bRegistered').is(':visible')){
+                    jQuery('.heidelB2bNotRegistered').remove();
+                } else {
+                    jQuery('.heidelB2bRegistered').remove();
+                }
+            }
             break;
-
     }
 
     if ((jQuery('.' + checkedOpt + '  .has--error').length > 0)) {
@@ -1271,7 +1245,7 @@ function valInvoiceB2b() {
     // checking depending registered fields
     // if($('.newreg_ivb2b #heidelB2bCompanyRegistered :checked').val()== "REGISTERED"){
     if($('.newreg_ivb2b input:checked').val()== "REGISTERED"){
-        // checking Company Commercial registernuimber
+        // checking Company Commercial registernumber
         var heidelb2bCompanyRegisterNr = $('.newreg_ivb2b #heidelb2bCompanyRegisterNr').val();
         if(heidelb2bCompanyRegisterNr == '' || heidelb2bCompanyRegisterNr == "undefined"){
             $('.newreg_ivb2b #heidelb2bCompanyRegisterNr').prop('class','has--error');

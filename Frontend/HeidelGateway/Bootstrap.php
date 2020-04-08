@@ -28,7 +28,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 	 * @return string version number
 	 */
 	public function getVersion(){
-		return '19.10.31';
+		return '20.04.08';
 	}
 
 	/**
@@ -994,17 +994,32 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                     $this->logError($msg,$e);
                 }
             // Compatibility for SW 5.6
-            case '19.08.21':
             // Fix for no additional E-Mail for invoice B2B is sent after an order
             // Feature setting article in stock in case of an order without session
             // Fix for redirect after saving registered paymentdata in savePaymentAction
-            // Fix for switching to paymentmethod dd with reg
-            // Fix for a php-fatal exception could be thrown in case of incoming pushes "Call to a member function getPrevious() on null"
+            case '19.08.21':
             case '19.09.16':
             case '19.10.31':
                 try{
                     $msg .= '* update 19.10.31<br />';
                 } catch (Exception $e) {
+                    $this->logError($msg,$e);
+                }
+
+            // Fix for switching to paymentmethod dd with reg
+            // Fix for a php-fatal exception could be thrown in case of incoming pushes "Call to a member function getPrevious() on null"
+            // Fix for Mobile-browsers with Card-transactions
+            // Fix for PayPal registrations
+            // Fix for B2B-invoice form in JS
+            // added params for evaluation
+            // added EventHook in convertOrder to get notified after convertOrder has finshed
+            // activated refunds for eps payment method in backend
+            // Bugfix for EPS-Connector issues
+            case '20.01.15':
+            case '20.04.08':
+                try{
+                    $msg .= '* update 20.03.10<br />';
+                } catch (Exception $e){
                     $this->logError($msg,$e);
                 }
 
@@ -1411,13 +1426,15 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 						$payId = $translation['payId'];
 					}
 
-					$translationObject = new Shopware_Components_Translation();
-					$translationObject->write(
-							$shopId, 'config_payment', $payId, array(
-									'description' => $translation['trans_desc'],
-									'additionalDescription' => $translation['trans_addDesc'],
-							), true
-							);
+                    if(Shopware()->Config()->version <= "5.5.10"){
+                        $translationObject = new Shopware_Components_Translation();
+                        $translationObject->write(
+                            $shopId, 'config_payment', $payId, array(
+                            'description' => $translation['trans_desc'],
+                            'additionalDescription' => $translation['trans_addDesc'],
+                        ), true
+                        );
+                    }
 				}
 			}
 		}catch(Exception $e){
@@ -1865,6 +1882,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 
 	/**
 	 * Hook for custom code before document is renderd
+     *
 	 */
 	public function onBeforeRenderDocument(Enlight_Hook_HookArgs $args){
 		try{
@@ -2139,25 +2157,27 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                                                                                 widerrufen. Ausführliche Informationen zu dieser Einwilligung sowie die Möglichkeit zum Widerruf
                                                                                 finde ich </strong><a href="https://www.santander.de/applications/rechnungskauf/werbewiderspruch/" target="_blank">hier</a>.
                                                                             </strong>';
-                                                    $recoveryTextPrivacyPolicy = '<strong>Ich willige in die Übermittlung meiner personenbezogenen Daten an die Santander Consumer Bank AG
-                                                                                    gemäß den näheren Bestimmungen des beigefügten <a href="https://www.santander.de/applications/rechnungskauf/datenschutzbestimmungen" target="_blank">Einwilligungserklärungstextes</a> sowie an die darin
-                                                                                    genannten Auskunfteien und in die Durchführung einer automatisierten Entscheidung ein.</strong>
-                                                                                    </br>
-                                                                                    Nähere Informationen finden Sie in den <a href="https://www.santander.de/applications/rechnungskauf/datenschutzbestimmungen" target="_blank">Datenschutzhinweisen</a>
-                                                                                ';
+                                                    $recoveryTextPrivacyPolicy = '
+                                                                            <strong>Das Anklicken des Buttons “Jetzt kaufen” löst eine Übermittlung Ihrer 
+                                                                            personenberzogenen Daten an die Santander Consumer Bank AG zum Zweck der Bonitätsprüfung aus. 
+                                                                            <br />Nähere Informationen finden Sie in den Datenschutzhinweisen der Santander für den 
+                                                                            <a href=\"https://www.santander.de/static/datenschutzhinweise/rechnungskauf/datenschutzhinweise.html\" target=\"blank\">Rechnungs-/Ratenkauf</a>. 
+                                                                            Der Kunde ist mit <a href=\"https://applications.santander.de/applications/rechnungskauf/werbehinweise\" target=\"_blank\">werblicher Kommunikation</a> 
+                                                                            durch die Santander einverstanden. Die Erteilung dieser Einwilligung ist freiwillig und kann jederzeit <u>widerrufen</u> werden.
+                                                                            <strong>';
 
                                                     $sanJson 			= json_decode($getFormUrl['CONFIG_OPTIN_TEXT'],true);
+                                                    $sanJsonPrivPol     = json_decode($getFormUrl['CONFIG_OPTIN_TEXT_SCB_2'],true);
 
-                                                    $view->optin_San_logoUrl 		= empty($sanJson['logolink'])       ? $recoveryLogoUrl          : $sanJson['logolink'];
-                                                    $view->optin_San_adv		    = empty($sanJson['optin'])          ? $recoveryTextOptin        : $sanJson['optin'];
-                                                    $view->optin_San_privpol		= empty($sanJson['privacy_policy']) ? $recoveryTextPrivacyPolicy: $sanJson['privacy_policy'];
+                                                    $view->optin_San_logoUrl 		= empty($sanJson['logolink'])   ? $recoveryLogoUrl          : $sanJson['logolink'];
+                                                    $view->optin_San_adv		    = empty($sanJson['optin'])      ? $recoveryTextOptin        : $sanJson['optin'];
+                                                    $view->optin_San_privpol		= empty($sanJsonPrivPol['optin'])? $recoveryTextPrivacyPolicy: $sanJsonPrivPol['optin'];
 
                                                     $view->accountHolder_San	    = $getFormUrl['ACCOUNT_HOLDER'];
                                                     $view->checkOptin_San           = strtoupper($dobSan['CUSTOMER_OPTIN']);
                                                     $view->checkPrivacyPolicy_San   = strtoupper($dobSan['CUSTOMER_ACCEPT_PRIVACY_POLICY']);
 
                                                     $view->logoLink_San             = isset($sanJson['santander_iv_logo_link']) ? $sanJson['santander_iv_logo_link'] : $sanJson['santander_iv_img_link'];
-
                                                 }
 
 
@@ -2273,6 +2293,25 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 							}
 						}
 			}
+
+            // Case for PayPal registration
+            if(
+                ($request->getControllerName() == 'checkout' &&  $action == 'saveShippingPayment') ||
+                ($request->getControllerName() == 'account' &&  $action == 'savePayment')
+            ){
+                $user = Shopware()->Modules()->Admin()->sGetUserData();
+
+                if(
+                    ($user['additional']['payment']['name'] == "hgw_pay") &&
+                    (($config->HGW_VA_BOOKING_MODE == '3') || ($config->HGW_VA_BOOKING_MODE == '4'))
+                ) {
+                    $user = Shopware()->Modules()->Admin()->sGetUserData();
+                    $postData = $request->getPost();
+                    if (!empty($postData['heidelFormUrlPayPal'])){
+                        return $args->getSubject()->redirect($postData['heidelFormUrlPayPal']);
+                    }
+                }
+            }
 
             // Case for Santander to save Values to DB to use them in Request on gatewayAction()
             if(
@@ -2494,16 +2533,6 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                                 $view->extendsTemplate('register/hp_checkout_confirmreg.tpl');
                                 break;
                         }
-//                        if(
-//                            ($user['additional']['payment']['name'] == 'hgw_mpa')
-////                            ||
-////                            ($user['additional']['payment']['name'] == 'hgw_cc') ||
-////                            ($user['additional']['payment']['name'] == 'hgw_dc') ||
-////                            ($user['additional']['payment']['name'] == 'hgw_dd')
-//
-//                        ){ // or every other wallet
-//                            $view->extendsTemplate('register/hp_checkout_confirm.tpl');
-//                        }
                     }
 
 					if($_SESSION['Shopware']['HPWallet'] == '1'){
@@ -3560,7 +3589,9 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 			if($pm == 'hpr' || $pm == 'hps') {$pm = 'HP';}
 			$ppd_config['PAYMENT.METHOD'] = $pm;
 			$ppd_config['SHOP.TYPE'] = 'Shopware - '. Shopware()->Config()->Version;
+			$ppd_config['CRITERION.SHOP.TYPE'] = 'Shopware - '. Shopware()->Config()->Version;
 			$ppd_config['SHOPMODULE.VERSION'] = $this->moduleType ." ". $this->getVersion();
+			$ppd_config['CRITERION.SHOPMODULE.VERSION'] = $this->moduleType ." ". $this->getVersion();
 
 			return $ppd_config;
 
