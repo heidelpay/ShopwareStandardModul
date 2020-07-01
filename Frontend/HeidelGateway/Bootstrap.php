@@ -855,7 +855,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                     ));
                     $form->setElement('text', 'HGW_EASYMAXAMOUNT', array(
                         'label' => 'Maximum amount for easyCredit',
-                        'value' => 3000,
+                        'value' => 10000,
                         'scope' => \Shopware\Models\Config\Element::SCOPE_SHOP,
                         'description' => 'change maximum amount for easyCredit only after consultation with heidelpay'
                     ));
