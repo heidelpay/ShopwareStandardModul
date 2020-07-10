@@ -2265,6 +2265,8 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 										$view->user 		= $user;
 										$view->swfActive 	= $this->swfActive();
 										$view->frame		= $frame;
+										$view->HGW_EASYMINAMOUNT		= $config->HGW_EASYMINAMOUNT;
+										$view->HGW_EASYMAXAMOUNT		= $config->HGW_EASYMAXAMOUNT;
 
 										if ($config->HGW_DD_GUARANTEE_MODE == 1 ) {
 											$view->ddWithGuarantee 		= true;
@@ -2898,7 +2900,11 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                 }
             }
 
-            if((strtolower($user['additional']['payment']['name']) == 'hgw_hpr')) {
+            if(
+                (strtolower($user['additional']['payment']['name']) == 'hgw_hpr') &&
+                ($basketAmount+$shippingAmount >= Shopware()->Plugins()->Frontend()->HeidelGateway()->Config()->HGW_EASYMINAMOUNT)&&
+                ($basketAmount+$shippingAmount <= Shopware()->Plugins()->Frontend()->HeidelGateway()->Config()->HGW_EASYMAXAMOUNT)
+            ) {
                 $paymentMethod = 'hpr';
                 $brand = "EASYCREDIT";
                 $configData = $this->ppd_config('5', $paymentMethod);
