@@ -20,7 +20,6 @@ document.asyncReady(function() {
 
     // PATH SWITCH
     if(window.location.pathname.indexOf('account/payment') >= '0'){
-
         // ACCOUNT/PAYMENT
         var errorDiv = '#center .alert .alert--content';
 
@@ -370,7 +369,10 @@ document.asyncReady(function() {
 
             jQuery(errorDiv).parent().removeClass('is--hidden');
             jQuery(errorDiv).parent().show();
-            jQuery('html, body').animate({scrollTop: 0}, 0);
+            if(window.navigator.userAgent.indexOf('CriOS') === -1){
+                jQuery('html, body').animate({scrollTop: 0}, 0);
+            }
+
             return false;
         }else{
             // disable all other input fields
