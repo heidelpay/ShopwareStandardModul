@@ -400,6 +400,15 @@ document.asyncReady(function () {
             jQuery('#birthdate_papg').val(birthYear + '-' + birthMonth + '-' + birthDay);
         }
 
+        jQuery('.newreg_papg select').on('blur', function() {
+            var birthDay = jQuery(".newreg_papg [name='Date_Day']").val();
+            var birthMonth = jQuery(".newreg_papg [name = 'Date_Month']").val();
+            var birthYear = jQuery(".newreg_papg [name = 'Date_Year']").val();
+
+            jQuery('#birthdate_papg').val(birthYear + '-' + birthMonth + '-' + birthDay);
+
+        });
+
         jQuery('.newreg_ivpd').click(function (e) {
             var birthDay = jQuery(".newreg_ivpd [name='DatePay_Day']").val();
             var birthMonth = jQuery(".newreg_ivpd [name = 'DatePay_Month']").val();

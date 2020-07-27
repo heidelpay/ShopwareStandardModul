@@ -28,7 +28,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 	 * @return string version number
 	 */
 	public function getVersion(){
-		return '20.07.06';
+		return '20.08.06';
 	}
 
 	/**
@@ -1023,9 +1023,11 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                     $this->logError($msg,$e);
                 }
             // erase easyCredit Max-Amount
-            case '20.06.07':
+            // fixed an issue with invoice guaranteed on mobile browsers
+            // fixed an issue with iFrame-forms on mobile browsers
+            case '20.08.06':
                 try{
-                    $msg .= '* update 20.06.07<br />';
+                    $msg .= '* update 20.08.06<br />';
                 } catch (Exception $e){
                     $this->logError($msg,$e);
                 }
