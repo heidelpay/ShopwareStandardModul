@@ -28,7 +28,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 	 * @return string version number
 	 */
 	public function getVersion(){
-		return '20.04.08';
+		return '20.07.06';
 	}
 
 	/**
@@ -855,7 +855,7 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                     ));
                     $form->setElement('text', 'HGW_EASYMAXAMOUNT', array(
                         'label' => 'Maximum amount for easyCredit',
-                        'value' => 3000,
+                        'value' => 10000,
                         'scope' => \Shopware\Models\Config\Element::SCOPE_SHOP,
                         'description' => 'change maximum amount for easyCredit only after consultation with heidelpay'
                     ));
@@ -1018,7 +1018,14 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
             case '20.01.15':
             case '20.04.08':
                 try{
-                    $msg .= '* update 20.03.10<br />';
+                    $msg .= '* update 20.04.08<br />';
+                } catch (Exception $e){
+                    $this->logError($msg,$e);
+                }
+            // erase easyCredit Max-Amount
+            case '20.06.07':
+                try{
+                    $msg .= '* update 20.06.07<br />';
                 } catch (Exception $e){
                     $this->logError($msg,$e);
                 }
@@ -2258,6 +2265,8 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
 										$view->user 		= $user;
 										$view->swfActive 	= $this->swfActive();
 										$view->frame		= $frame;
+										$view->HGW_EASYMINAMOUNT		= $config->HGW_EASYMINAMOUNT;
+										$view->HGW_EASYMAXAMOUNT		= $config->HGW_EASYMAXAMOUNT;
 
 										if ($config->HGW_DD_GUARANTEE_MODE == 1 ) {
 											$view->ddWithGuarantee 		= true;
@@ -2891,7 +2900,11 @@ class Shopware_Plugins_Frontend_HeidelGateway_Bootstrap extends Shopware_Compone
                 }
             }
 
-            if((strtolower($user['additional']['payment']['name']) == 'hgw_hpr')) {
+            if(
+                (strtolower($user['additional']['payment']['name']) == 'hgw_hpr') &&
+                ($basketAmount+$shippingAmount >= Shopware()->Plugins()->Frontend()->HeidelGateway()->Config()->HGW_EASYMINAMOUNT)&&
+                ($basketAmount+$shippingAmount <= Shopware()->Plugins()->Frontend()->HeidelGateway()->Config()->HGW_EASYMAXAMOUNT)
+            ) {
                 $paymentMethod = 'hpr';
                 $brand = "EASYCREDIT";
                 $configData = $this->ppd_config('5', $paymentMethod);
