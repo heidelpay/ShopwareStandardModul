@@ -1910,6 +1910,8 @@ class Shopware_Controllers_Frontend_PaymentHgw extends Shopware_Controllers_Fron
             $this->View()->back2basket = 1;
             $this->View()->ErrorMessage = Shopware()->Session()->HPError;
             $this->View()->sErrorMessage = $this->getHPErrorMsg(Shopware()->Session()->HPError);
+            $this->View()->HGW_EASYMINAMOUNT = $this->Config()->HGW_EASYMINAMOUNT;
+            $this->View()->HGW_EASYMAXAMOUNT = $this->Config()->HGW_EASYMAXAMOUNT;
             unset(Shopware()->Session()->HPError);
         }catch(Exception $e){
             Shopware()->Plugins()->HeidelGateway()->Logging('failAction | '.$e->getMessage());
