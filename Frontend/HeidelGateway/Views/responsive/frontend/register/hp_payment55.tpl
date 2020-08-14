@@ -125,10 +125,13 @@
 
         {elseif {$payment_mean.name} == "hgw_dc"}
 			<input type="radio" name="payment" class="radio auto_submit {$payment_mean.name}" value="{$payment_mean.id}" id="payment_mean{$payment_mean.id}" {if $payment_mean.id eq $form_data.payment or ($payment_mean.id == $sPayment.id)} checked="checked"{/if} />
-
-         {else}
+        {elseif isset($useOnePageCheckout)}
+            <input type="radio" name="payment" class="radio auto_submit {$payment_mean.name}" value="{$payment_mean.id}" id="payment_mean{$payment_mean.id}" {if $payment_mean.id eq $form_data.payment or ($payment_mean.id == $sPayment.id)} checked="checked"{/if} />
+        {else}
 			<input type="radio" name="payment" class="radio auto_submit {$payment_mean.name}" value="{$payment_mean.id}" id="payment_mean{$payment_mean.id}" {if $payment_mean.id eq $form_data.payment or ($payment_mean.id == $sPayment.id)} checked="checked"{/if} />
 		{/if}
+    {elseif isset($useOnePageCheckout)}
+        <input type="radio" name="payment" class="radio auto_submit {$payment_mean.name}" value="{$payment_mean.id}" id="payment_mean{$payment_mean.id}" {if $payment_mean.id eq $form_data.payment or ($payment_mean.id == $sPayment.id)} checked="checked"{/if} />
     {else}
 		<input type="radio" name="register[payment]" class="radio {if $sRegisterFinished}auto_submit {/if}{$payment_mean.name}" value="{$payment_mean.id}" id="payment_mean{$payment_mean.id}" {if $payment_mean.id eq $form_data.payment or ($payment_mean.id == $sPayment.id)} checked="checked"{/if} />
     {/if}
@@ -220,6 +223,10 @@
 			<div class="method--input">
                 {block name="hp_radio"}{/block}
 			</div>
+        {elseif isset($useOnePageCheckout)}
+            <div class="method--input">
+                {block name="hp_radio"}{/block}
+            </div>
         {else}
             {block name="hp_radio"}{/block}
         {/if}
